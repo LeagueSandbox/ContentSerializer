@@ -32,7 +32,7 @@ namespace LeagueSandbox.ContentSerializer
             var hashForcer = new HashForcer(true);
             hashForcer.LoadHashes(manager);
             hashForcer.LoadSources("sources.json");
-            hashForcer.Run(12);
+            hashForcer.Run(Environment.ProcessorCount);
             hashForcer.WaitFinish();
             var result = hashForcer.GetResult();
 
