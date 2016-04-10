@@ -28,5 +28,26 @@ namespace LeagueLib.Hashes
 
             return hash;
         }
+
+        public static uint GetInibinHash(string section, string name)
+        {
+            uint hash = 0;
+            section = section.ToLower();
+            name = name.ToLower();
+
+            foreach (var c in section)
+            {
+                hash = c + 65599 * hash;
+            }
+
+            hash = (65599 * hash + 42);
+
+            foreach (var c in name)
+            {
+                hash = c + 65599 * hash;
+            }
+
+            return hash;
+        }
     }
 }
