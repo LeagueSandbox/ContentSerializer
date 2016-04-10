@@ -27,8 +27,13 @@ namespace LeagueSandbox.ContentSerializer
         {
             var arguments = LaunchArguments.Parse(args);
             var radsPath = GetRadsPath(arguments);
-
             var manager = new ArchiveFileManager(radsPath);
+
+            MatchHashes(manager);
+        }
+
+        static void MatchHashes(ArchiveFileManager manager)
+        {
             var hashForcer = new HashForcer(true);
             hashForcer.LoadHashes(manager);
             hashForcer.LoadSources("sources.json");
