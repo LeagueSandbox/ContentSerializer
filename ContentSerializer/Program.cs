@@ -27,11 +27,36 @@ namespace LeagueSandbox.ContentSerializer
         {
             var arguments = LaunchArguments.Parse(args);
             var radsPath = GetRadsPath(arguments);
+            var manager = new ArchiveFileManager(radsPath);
 
-            //var manager = new ArchiveFileManager(radsPath);
             //ExtractItemData(manager);
+            //ConvertDraftToMap("itemConversionMapScratch.json", "itemConversionMap.json");
 
-            ConvertDraftToMap("itemConversionMapScratch.json", "itemConversionMap.json");
+            var conversionMap = ConversionMap.Load("itemConversionMap.json");
+            var converter = new InibinConverter(conversionMap);
+            ExportItemData(manager, converter);
+        }
+
+        static void ExportItemData(ArchiveFileManager manager, InibinConverter converter)
+        {
+            var itemFiles = manager.GetAllFileEntries("DATA/Items");
+            foreach (var entry in itemFiles)
+            {
+                if (!entry.FullName.Contains(".inibin")) continue;
+                var file = manager.ReadFile(entry.FullName).Uncompress();
+                var inibin = Inibin.DeserializeInibin(file, entry.FullName);
+                foreach (var kvp in inibin.Content)
+                {
+                    converter.AddByHash(kvp.Key, kvp.Value);
+                }
+                var itemContent = converter.Deserialize();
+                var itemContentJson = JsonConvert.SerializeObject(itemContent, Formatting.Indented);
+                var savePath = string.Format("Content/{0}", entry.FullName.Replace(".inibin", ".json"));
+                var saveDirectory = Path.GetDirectoryName(savePath);
+                if (!Directory.Exists(saveDirectory)) Directory.CreateDirectory(saveDirectory);
+                File.WriteAllText(savePath, itemContentJson);
+                converter.Clear();
+            }
         }
 
         static void ConvertDraftToMap(string source, string target)
