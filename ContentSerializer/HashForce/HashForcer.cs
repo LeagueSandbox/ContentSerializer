@@ -15,7 +15,7 @@ namespace LeagueSandbox.ContentSerializer.HashForce
     {
         public int HashCount { get { return _hashes == null ? 0 : _hashes.Count; } }
 
-        private LeagueHashCollection _result;
+        private LeagueHashSourceCollection _result;
         private List<HashWorker> _workers;
         private HashSet<uint> _hashes;
         private string[] _stringSources;
@@ -104,10 +104,10 @@ namespace LeagueSandbox.ContentSerializer.HashForce
             UpdateStatus("All workers finished");
         }
 
-        public LeagueHashCollection GetResult()
+        public LeagueHashSourceCollection GetResult()
         {
             if (_result != null) return _result;
-            _result = new LeagueHashCollection();
+            _result = new LeagueHashSourceCollection();
 
             foreach(var worker in _workers)
             {
@@ -132,7 +132,7 @@ namespace LeagueSandbox.ContentSerializer.HashForce
 
     public class HashWorker
     {
-        private LeagueHashCollection _result;
+        private LeagueHashSourceCollection _result;
         private Thread _workThread;
         private HashSet<uint> _hashes;
         private string[] _sources;
@@ -158,7 +158,7 @@ namespace LeagueSandbox.ContentSerializer.HashForce
             _workThread.Start();
         }
 
-        public LeagueHashCollection GetResult()
+        public LeagueHashSourceCollection GetResult()
         {
             if (!_finished) throw new Exception("The worker hasn't finished yet");
             return _result;
@@ -167,7 +167,7 @@ namespace LeagueSandbox.ContentSerializer.HashForce
         private void Work()
         {
             _finished = false;
-            _result = new LeagueHashCollection();
+            _result = new LeagueHashSourceCollection();
             Progress = 0;
             var end = _start + _count;
             for(var i = _start; i < end && i < _sources.Length; i++)
@@ -183,7 +183,7 @@ namespace LeagueSandbox.ContentSerializer.HashForce
         }
     }
 
-    public class LeagueHashCollection
+    public class LeagueHashSourceCollection
     {
         public int SectionCount { get { return _content.Count; } }
         public int HashCount { get; private set; }
@@ -191,7 +191,7 @@ namespace LeagueSandbox.ContentSerializer.HashForce
 
         private Dictionary<string, HashSet<string>> _content;
 
-        public LeagueHashCollection() { _content = new Dictionary<string, HashSet<string>>(); }
+        public LeagueHashSourceCollection() { _content = new Dictionary<string, HashSet<string>>(); }
 
         public void AddSource(string section, string key)
         {
@@ -201,7 +201,7 @@ namespace LeagueSandbox.ContentSerializer.HashForce
             HashCount++;
         }
 
-        public void Combine(LeagueHashCollection other)
+        public void Combine(LeagueHashSourceCollection other)
         {
             foreach(var kvp in other._content)
             {
@@ -210,6 +210,23 @@ namespace LeagueSandbox.ContentSerializer.HashForce
                     AddSource(kvp.Key, entry);
                 }
             }
+        }
+    }
+
+    public class LeagueHashCollection
+    {
+        public Dictionary<uint, Dictionary<string, HashSet<string>>> Hashes { get { return _hashes; } }
+
+        private Dictionary<uint, Dictionary<string, HashSet<string>>> _hashes;
+
+        public LeagueHashCollection() { _hashes = new Dictionary<uint, Dictionary<string, HashSet<string>>>(); }
+
+        public void AddFromSource(string section, string name)
+        {
+            var hash = LeagueLib.Hashes.HashFunctions.GetInibinHash(section, name);
+            if (!_hashes.ContainsKey(hash)) _hashes[hash] = new Dictionary<string, HashSet<string>>();
+            if (!_hashes[hash].ContainsKey(section)) _hashes[hash][section] = new HashSet<string>();
+            _hashes[hash][section].Add(name);
         }
     }
 }
