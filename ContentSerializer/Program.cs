@@ -1,16 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using LeagueLib.Tools;
 using System.IO;
-using Newtonsoft.Json.Linq;
-using LeagueLib.Files;
-using System.Threading;
-using Newtonsoft.Json;
-using LeagueSandbox.ContentSerializer.HashForce;
+using System.Linq;
 using System.Diagnostics;
+using System.Collections.Generic;
+using LeagueSandbox.ContentSerializer.HashForce;
+using LeagueLib.Files;
+using LeagueLib.Tools;
+using Newtonsoft.Json;
 
 namespace LeagueSandbox.ContentSerializer
 {
@@ -33,37 +29,52 @@ namespace LeagueSandbox.ContentSerializer
             var radsPath = GetRadsPath(arguments);
             var manager = new ArchiveFileManager(radsPath);
 
-            //ExtractItemData(manager);
-            //ConvertDraftToMap("itemConversionMapScratch.json", "itemConversionMap.json");
-
-            //var conversionMap = ConversionMap.Load("itemConversionMap.json");
-            //var converter = new InibinConverter(conversionMap);
-            //ExportItemData(manager, converter);
-            MatchHashes(manager, "sources-420.json");
             timer.Stop();
             Console.WriteLine("Elapsed time: {0} ms", timer.ElapsedMilliseconds);
             Console.ReadKey();
         }
 
+        static void TestingAndDebugging(ArchiveFileManager manager)
+        {
+
+            //ExtractItemData(manager);
+            //ConvertDraftToMap("itemConversionMapDraft.json", "itemConversionMap.json");
+
+            var conversionMap = ConversionMap.Load("itemConversionMap.json");
+            var converter = new InibinConverter(conversionMap);
+            ExportItemData(manager, converter);
+            //ExtractItemData(manager, "result-420-420.json");
+        }
+
         static void ExportItemData(ArchiveFileManager manager, InibinConverter converter)
         {
-            var itemFiles = manager.GetAllFileEntries("DATA/Items");
+            var itemFiles = manager.GetAllFileEntries();
             foreach (var entry in itemFiles)
             {
-                if (!entry.FullName.Contains(".inibin")) continue;
-                var file = manager.ReadFile(entry.FullName).Uncompress();
-                var inibin = Inibin.DeserializeInibin(file, entry.FullName);
-                foreach (var kvp in inibin.Content)
-                {
-                    converter.AddByHash(kvp.Key, kvp.Value);
-                }
-                var itemContent = converter.Deserialize();
-                var itemContentJson = JsonConvert.SerializeObject(itemContent, Formatting.Indented);
-                var savePath = string.Format("Content/{0}", entry.FullName.Replace(".inibin", ".json"));
-                var saveDirectory = Path.GetDirectoryName(savePath);
+                var saveDirectory = Path.GetDirectoryName(string.Format("Content/{0}", entry.FullName));
                 if (!Directory.Exists(saveDirectory)) Directory.CreateDirectory(saveDirectory);
-                File.WriteAllText(savePath, itemContentJson);
-                converter.Clear();
+                var compressedFile = manager.ReadFile(entry.FullName, true);
+                if (compressedFile == null) continue;
+                var file = compressedFile.Uncompress();
+
+                if (entry.FullName.Contains(".inibin"))
+                {
+                    var inibin = Inibin.DeserializeInibin(file, entry.FullName);
+                    foreach (var kvp in inibin.Content)
+                    {
+                        converter.AddByHash(kvp.Key, kvp.Value);
+                    }
+                    var itemContent = converter.Deserialize();
+                    var itemContentJson = JsonConvert.SerializeObject(itemContent, Formatting.Indented);
+                    var savePath = string.Format("Content/{0}", entry.FullName.Replace(".inibin", ".json"));
+                    File.WriteAllText(savePath, itemContentJson);
+                    converter.Clear();
+                }
+                else
+                {
+                    var savePath = string.Format("Content/{0}", entry.FullName);
+                    File.WriteAllBytes(savePath, file);
+                }
             }
         }
 
@@ -87,9 +98,9 @@ namespace LeagueSandbox.ContentSerializer
             File.WriteAllText(target, mappingJson);
         }
 
-        static void ExtractItemData(ArchiveFileManager manager)
+        static void ExtractItemData(ArchiveFileManager manager, string hashSourcesPath)
         {
-            var data = File.ReadAllText("result-latest-420.json");
+            var data = File.ReadAllText(hashSourcesPath);
             var hashSourceCollection = JsonConvert.DeserializeObject<LeagueHashSourceCollection>(data);
             var hashCollection = new LeagueHashCollection();
             foreach (var kvp in hashSourceCollection.Content)
@@ -121,22 +132,19 @@ namespace LeagueSandbox.ContentSerializer
                 mapping.Hashes.Add(hash, hashCollection.Hashes[hash]);
             }
 
+            var result = new LeagueHashCollection();
             foreach(var hash in mapping.Hashes)
             {
-                var sections = hash.Value;
-                if (sections.ContainsKey("data") && sections.ContainsKey("Data") && sections.ContainsKey("DATA"))
-                {
-                    var data1 = sections["data"];
-                    var data2 = sections["Data"];
-                    var data3 = sections["DATA"];
-                    if (!(data1.Count == 1 && data2.Count == 1 && data3.Count == 1)) continue;
-                    if (!(data1.Contains(data2.First()) && data2.Contains(data3.First()))) continue;
-                    sections.Remove("data");
-                    sections.Remove("DATA");
-                }
+                var sectionFilterer = new SectionFilterer(hash.Value);
+                sectionFilterer.ApplyFilter(new FilterPlaintextSections());
+                sectionFilterer.ApplyFilter(new FilterDuplicateSections());
+                sectionFilterer.ApplyFilter(new FilterPlaintextKeys());
+                result.Hashes.Add(hash.Key, sectionFilterer.CurrentSections);
             }
+            var conflictResolver = new ConflictResolver();
+            result = conflictResolver.ResolveConflicts(result);
 
-            var itemMappingJson = JsonConvert.SerializeObject(mapping, Formatting.Indented);
+            var itemMappingJson = JsonConvert.SerializeObject(result, Formatting.Indented);
             File.WriteAllText("itemConversionMapDraft.json", itemMappingJson);
         }
 
