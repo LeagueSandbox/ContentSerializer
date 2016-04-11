@@ -10,6 +10,7 @@ using LeagueLib.Files;
 using System.Threading;
 using Newtonsoft.Json;
 using LeagueSandbox.ContentSerializer.HashForce;
+using System.Diagnostics;
 
 namespace LeagueSandbox.ContentSerializer
 {
@@ -25,6 +26,9 @@ namespace LeagueSandbox.ContentSerializer
 
         static void Main(string[] args)
         {
+            var timer = new Stopwatch();
+            timer.Start();
+
             var arguments = LaunchArguments.Parse(args);
             var radsPath = GetRadsPath(arguments);
             var manager = new ArchiveFileManager(radsPath);
@@ -32,9 +36,13 @@ namespace LeagueSandbox.ContentSerializer
             //ExtractItemData(manager);
             //ConvertDraftToMap("itemConversionMapScratch.json", "itemConversionMap.json");
 
-            var conversionMap = ConversionMap.Load("itemConversionMap.json");
-            var converter = new InibinConverter(conversionMap);
-            ExportItemData(manager, converter);
+            //var conversionMap = ConversionMap.Load("itemConversionMap.json");
+            //var converter = new InibinConverter(conversionMap);
+            //ExportItemData(manager, converter);
+            MatchHashes(manager, "sources-420.json");
+            timer.Stop();
+            Console.WriteLine("Elapsed time: {0} ms", timer.ElapsedMilliseconds);
+            Console.ReadKey();
         }
 
         static void ExportItemData(ArchiveFileManager manager, InibinConverter converter)
@@ -132,11 +140,11 @@ namespace LeagueSandbox.ContentSerializer
             File.WriteAllText("itemConversionMapDraft.json", itemMappingJson);
         }
 
-        static void MatchHashes(ArchiveFileManager manager)
+        static void MatchHashes(ArchiveFileManager manager, string sourcesPath)
         {
             var hashForcer = new HashForcer(true);
             hashForcer.LoadHashes(manager);
-            hashForcer.LoadSources("sources.json");
+            hashForcer.LoadSources(sourcesPath);
             hashForcer.Run(Environment.ProcessorCount);
             hashForcer.WaitFinish();
             var result = hashForcer.GetResult();
@@ -148,7 +156,6 @@ namespace LeagueSandbox.ContentSerializer
             var resultJson = JsonConvert.SerializeObject(result, Formatting.Indented);
             File.WriteAllText("result.json", resultJson);
             Console.WriteLine("Saved findings to a result.json");
-            Console.ReadKey();
         }
     }
 }

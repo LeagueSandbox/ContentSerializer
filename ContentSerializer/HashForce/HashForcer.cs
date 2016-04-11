@@ -87,8 +87,8 @@ namespace LeagueSandbox.ContentSerializer.HashForce
 
         public void WaitFinish()
         {
-            var progress = 0;
-            var totalProgress = _stringSources.Length * _stringSources.Length;
+            long progress = 0;
+            long totalProgress = _stringSources.LongLength * _stringSources.LongLength;
             while (progress < totalProgress)
             {
                 progress = 0;
