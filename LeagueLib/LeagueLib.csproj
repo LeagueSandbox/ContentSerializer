@@ -52,6 +52,8 @@
     <Compile Include="Files\ArchiveStateWriter.cs" />
     <Compile Include="Files\ArchiveWriteBuffer.cs" />
     <Compile Include="Files\ArchiveWriter.cs" />
+    <Compile Include="Files\FontConfigFile.cs" />
+    <Compile Include="Files\FontConfigFileReader.cs" />
     <Compile Include="Files\Inibin.cs" />
     <Compile Include="Files\InibinReader.cs" />
     <Compile Include="Files\InibinWriter.cs" />
