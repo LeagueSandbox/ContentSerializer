@@ -112,20 +112,5 @@
     "ShowInActiveItemDisplay": 854000135,
     "SpellName": 4262394835,
     "UsableInStore": 883270180
-  },
-  "game_messagebox_caption_tutorial": {
-    "FW": 1466389974
-  },
-  "LangBar_OnSelectIME": {
-    "Menu/Textures": 3518384458
-  },
-  "lengthSq": {
-    "startLocator": 2036632410
-  },
-  "Start": {
-    "Lane": 2087427124
-  },
-  "visibleFrame": {
-    "HTML_RENDER": 539696123
   }
 }

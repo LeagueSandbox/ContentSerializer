@@ -49,6 +49,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConflictResolver.cs" />
+    <Compile Include="ContentTypes\Item.cs" />
     <Compile Include="ConversionMap.cs" />
     <Compile Include="Exporters\ItemExporter.cs" />
     <Compile Include="HashForce\HashForcer.cs" />
