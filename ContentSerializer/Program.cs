@@ -7,6 +7,8 @@ using LeagueSandbox.ContentSerializer.HashForce;
 using LeagueLib.Files;
 using LeagueLib.Tools;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using LeagueSandbox.ContentSerializer.Exporters;
 
 namespace LeagueSandbox.ContentSerializer
 {
@@ -29,6 +31,11 @@ namespace LeagueSandbox.ContentSerializer
             var radsPath = GetRadsPath(arguments);
             var manager = new ArchiveFileManager(radsPath);
 
+            //TestingAndDebugging(manager);
+            var fontConfig = FontConfigFile.Load(manager, "en_US");
+            var itemExporter = new ItemExporter();
+            itemExporter.Export(manager, fontConfig);
+
             timer.Stop();
             Console.WriteLine("Elapsed time: {0} ms", timer.ElapsedMilliseconds);
             Console.ReadKey();
@@ -39,16 +46,77 @@ namespace LeagueSandbox.ContentSerializer
 
             //ExtractItemData(manager);
             //ConvertDraftToMap("itemConversionMapDraft.json", "itemConversionMap.json");
-
-            var conversionMap = ConversionMap.Load("itemConversionMap.json");
-            var converter = new InibinConverter(conversionMap);
-            ExportItemData(manager, converter);
+            ////ReformatResult();
+            //var conversionMap = ConversionMap.Load("ItemConversionMap.json");
+            //var converter = new InibinConverter(conversionMap);
+            //ExportData(manager, converter);
+            var mapping = (JObject)JToken.Parse(File.ReadAllText("ItemConversionMap.json"));
+            Sort(mapping);
+            File.WriteAllText("ItemConversionMapSorted.json", mapping.ToString());
             //ExtractItemData(manager, "result-420-420.json");
         }
 
-        static void ExportItemData(ArchiveFileManager manager, InibinConverter converter)
+        public static void Sort(JObject jObj)
         {
-            var itemFiles = manager.GetAllFileEntries();
+            var props = jObj.Properties().ToList();
+            foreach (var prop in props)
+            {
+                prop.Remove();
+            }
+
+            foreach (var prop in props.OrderBy(p => p.Name))
+            {
+                jObj.Add(prop);
+                if (prop.Value is JObject)
+                    Sort((JObject)prop.Value);
+            }
+        }
+
+        static void ReformatResult()
+        {
+            var source = "ResultFiltered.json";
+            var target = "ResultFilteredReformatted.json";
+            var scratchJson = File.ReadAllText(source);
+            var hashCollection = JsonConvert.DeserializeObject<LeagueHashCollection>(scratchJson);
+            var mapping = new Dictionary<string, Dictionary<string, uint>>();
+            foreach (var entry in hashCollection.Hashes)
+            {
+                var hash = entry.Key;
+                var section = entry.Value.First();
+                var name = section.Value.First();
+
+                if (!mapping.ContainsKey(section.Key)) mapping[section.Key] = new Dictionary<string, uint>();
+                mapping[section.Key].Add(name, hash);
+            }
+            var mappingJson = JsonConvert.SerializeObject(mapping, Formatting.Indented);
+            File.WriteAllText(target, mappingJson);
+        }
+
+        static void FilterResult()
+        {
+            var hashSourcesPath = "result.json";
+            var data = File.ReadAllText(hashSourcesPath);
+            var hashSourceCollection = JsonConvert.DeserializeObject<LeagueHashSourceCollection>(data);
+            var hashCollection = new LeagueHashCollection(hashSourceCollection);
+
+            var result = new LeagueHashCollection();
+            foreach (var hash in hashCollection.Hashes)
+            {
+                var sectionFilterer = new SectionFilterer(hash.Value);
+                sectionFilterer.ApplyFilter(new FilterPlaintextSections().SetMinimumCount<FilterPlaintextSections>(0));
+                sectionFilterer.ApplyFilter(new FilterDuplicateSections().SetMinimumCount<FilterDuplicateSections>(0));
+                sectionFilterer.ApplyFilter(new FilterPlaintextKeys().SetMinimumCount<FilterPlaintextKeys>(0));
+                if (!(sectionFilterer.CurrentSections.Count > 0)) continue;
+                result.Hashes.Add(hash.Key, sectionFilterer.CurrentSections);
+            }
+
+            var itemMappingJson = JsonConvert.SerializeObject(result, Formatting.Indented);
+            File.WriteAllText("ResultFiltered.json", itemMappingJson);
+        }
+
+        static void ExportData(ArchiveFileManager manager, InibinConverter converter)
+        {
+            var itemFiles = manager.GetFileEntriesFrom("DATA/Items", true);
             foreach (var entry in itemFiles)
             {
                 var saveDirectory = Path.GetDirectoryName(string.Format("Content/{0}", entry.FullName));
@@ -57,7 +125,7 @@ namespace LeagueSandbox.ContentSerializer
                 if (compressedFile == null) continue;
                 var file = compressedFile.Uncompress();
 
-                if (entry.FullName.Contains(".inibin"))
+                if (entry.FullName.Contains(".inibin") || entry.FullName.Contains(".troybin"))
                 {
                     var inibin = Inibin.DeserializeInibin(file, entry.FullName);
                     foreach (var kvp in inibin.Content)
@@ -66,7 +134,13 @@ namespace LeagueSandbox.ContentSerializer
                     }
                     var itemContent = converter.Deserialize();
                     var itemContentJson = JsonConvert.SerializeObject(itemContent, Formatting.Indented);
+
                     var savePath = string.Format("Content/{0}", entry.FullName.Replace(".inibin", ".json"));
+                    if (entry.FullName.Contains(".troybin"))
+                    {
+                        savePath = string.Format("Content/{0}", entry.FullName.Replace(".troybin", ".troybin.json"));
+                    }
+
                     File.WriteAllText(savePath, itemContentJson);
                     converter.Clear();
                 }
@@ -102,17 +176,10 @@ namespace LeagueSandbox.ContentSerializer
         {
             var data = File.ReadAllText(hashSourcesPath);
             var hashSourceCollection = JsonConvert.DeserializeObject<LeagueHashSourceCollection>(data);
-            var hashCollection = new LeagueHashCollection();
-            foreach (var kvp in hashSourceCollection.Content)
-            {
-                foreach (var name in kvp.Value)
-                {
-                    hashCollection.AddFromSource(kvp.Key, name);
-                }
-            }
+            var hashCollection = new LeagueHashCollection(hashSourceCollection);
 
             var itemHashes = new HashSet<uint>();
-            var itemFiles = manager.GetAllFileEntries("DATA/Items");
+            var itemFiles = manager.GetFileEntriesFrom("DATA/Items", true);
             foreach(var entry in itemFiles)
             {
                 if (!entry.FullName.Contains(".inibin")) continue;

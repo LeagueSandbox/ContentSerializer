@@ -36,6 +36,7 @@ namespace LeagueLib.Files
             {
                 var entry = ParseLine(line);
                 result.Content.Add(entry.Key, entry.Value);
+                line = stream.ReadLine();
             }
 
             return result;

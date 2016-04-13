@@ -221,6 +221,18 @@ namespace LeagueSandbox.ContentSerializer.HashForce
 
         public LeagueHashCollection() { _hashes = new Dictionary<uint, Dictionary<string, HashSet<string>>>(); }
 
+        public LeagueHashCollection(LeagueHashSourceCollection hashSources)
+        {
+            _hashes = new Dictionary<uint, Dictionary<string, HashSet<string>>>();
+            foreach (var kvp in hashSources.Content)
+            {
+                foreach (var name in kvp.Value)
+                {
+                    AddFromSource(kvp.Key, name);
+                }
+            }
+        }
+
         public void AddFromSource(string section, string name)
         {
             var hash = LeagueLib.Hashes.HashFunctions.GetInibinHash(section, name);

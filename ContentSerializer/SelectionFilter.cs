@@ -24,7 +24,6 @@ namespace LeagueSandbox.ContentSerializer
             LastSections = CurrentSections;
             CurrentSections = filter.Filter(CurrentSections);
             var filterCount = LastSections.Count - CurrentSections.Count;
-            if(filterCount > 0) Console.WriteLine("Filtered out {0} sections", filterCount);
         }
     }
 
@@ -37,6 +36,9 @@ namespace LeagueSandbox.ContentSerializer
     {
         protected Dictionary<string, HashSet<string>> _allSections;
         protected Dictionary<string, HashSet<string>> _filteredSections;
+        protected int _minimumCount;
+
+        public SectionFilter() { _minimumCount = 1; }
 
         public override Dictionary<string, HashSet<string>> Filter(Dictionary<string, HashSet<string>> sections)
         {
@@ -49,8 +51,16 @@ namespace LeagueSandbox.ContentSerializer
                 SectionPass(section.Key, section.Value);
             }
 
+            var finalSections = new Dictionary<string, HashSet<string>>();
+            foreach(var section in _filteredSections)
+            {
+                if (!(section.Value.Count > 0)) continue;
+                finalSections.Add(section.Key, section.Value);
+            }
+            _filteredSections = finalSections;
+
             var result = GetSectionResult();
-            if (result.Count > 0) return result;
+            if (result.Count >= _minimumCount) return result;
             return _allSections;
         }
 
@@ -59,6 +69,12 @@ namespace LeagueSandbox.ContentSerializer
         protected virtual Dictionary<string, HashSet<string>> GetSectionResult()
         {
             return _filteredSections;
+        }
+
+        public T SetMinimumCount<T>(int value) where T : SectionFilter
+        {
+            _minimumCount = value;
+            return (T)this;
         }
     }
 
@@ -128,7 +144,7 @@ namespace LeagueSandbox.ContentSerializer
                 _allContents.Add(entry);
                 ContentPass(entry);
             }
-            if (_filteredContents.Count > 0) _filteredSections.Add(name, GetContentResult());
+            if (_filteredContents.Count >= _minimumCount) _filteredSections.Add(name, GetContentResult());
         }
 
         protected virtual void ContentPass(string name) { }

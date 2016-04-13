@@ -76,8 +76,8 @@ namespace LeagueSandbox.ContentSerializer
 
         public void Clear()
         {
-            _keyToValue.Clear();
-            _hashToValue.Clear();
+            _keyToValue = new Dictionary<InibinKey, InibinValue>();
+            _hashToValue = new Dictionary<uint, InibinValue>();
         }
 
         public void AddByHash(uint hash, InibinValue value)
@@ -106,6 +106,16 @@ namespace LeagueSandbox.ContentSerializer
                 result[section].Add(name, value.Value);
             }
             return result;
+        }
+
+        public Dictionary<string, Dictionary<string, object>> Convert(Inibin inibin)
+        {
+            Clear();
+            foreach (var kvp in inibin.Content)
+            {
+                AddByHash(kvp.Key, kvp.Value);
+            }
+            return Deserialize();
         }
 
         public Dictionary<uint, InibinValue> Serialize()
