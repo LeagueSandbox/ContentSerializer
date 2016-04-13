@@ -90,7 +90,7 @@ namespace LeagueLib.Files
                     values[i] = new InibinValue(type, _reader.ReadByte());
                 }
             }
-            else if (type == 5) // Booleans
+            else if (type == 5) // Booleans / one bit values
             {
                 byte[] bytes = new byte[(int)Math.Ceiling((decimal)count / 8)];
                 _reader.BaseStream.Read(bytes, 0, bytes.Length);
@@ -98,7 +98,7 @@ namespace LeagueLib.Files
 
                 for (int i = 0; i < count; i++)
                 {
-                    values[i] = new InibinValue(type, bits[i]);
+                    values[i] = new InibinValue(type, Convert.ToInt32(bits[i]));
                 }
             }
             else if (type == 6) // 3x byte values - Resource bar RGB color

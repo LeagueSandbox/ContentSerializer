@@ -87,8 +87,8 @@ namespace LeagueSandbox.ContentSerializer.HashForce
 
         public void WaitFinish()
         {
-            var progress = 0;
-            var totalProgress = _stringSources.Length * _stringSources.Length;
+            long progress = 0;
+            long totalProgress = _stringSources.LongLength * _stringSources.LongLength;
             while (progress < totalProgress)
             {
                 progress = 0;
@@ -220,6 +220,18 @@ namespace LeagueSandbox.ContentSerializer.HashForce
         private Dictionary<uint, Dictionary<string, HashSet<string>>> _hashes;
 
         public LeagueHashCollection() { _hashes = new Dictionary<uint, Dictionary<string, HashSet<string>>>(); }
+
+        public LeagueHashCollection(LeagueHashSourceCollection hashSources)
+        {
+            _hashes = new Dictionary<uint, Dictionary<string, HashSet<string>>>();
+            foreach (var kvp in hashSources.Content)
+            {
+                foreach (var name in kvp.Value)
+                {
+                    AddFromSource(kvp.Key, name);
+                }
+            }
+        }
 
         public void AddFromSource(string section, string name)
         {

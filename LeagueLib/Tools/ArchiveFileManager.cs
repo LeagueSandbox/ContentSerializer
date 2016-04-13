@@ -99,6 +99,14 @@ namespace LeagueLib.Tools
             }
         }
 
+        public Inibin ReadInibin(string filePath)
+        {
+            if (!filePath.EndsWith(".inibin")) throw new Exception("Unsupported target file type");
+            var file = ReadFile(filePath).Uncompress();
+            var inibin = Inibin.DeserializeInibin(file, filePath);
+            return inibin;
+        }
+
         public ArchiveFile ReadFile(string filepath)
         {
             return ReadFile(filepath, false);
@@ -302,22 +310,33 @@ namespace LeagueLib.Tools
             return Manifest.Files;
         }
 
-        public ReleaseManifestFileEntry[] GetAllFileEntries(string startingFolder)
+        public ReleaseManifestFileEntry[] GetFileEntriesFrom(string directoryPath)
         {
-            if (startingFolder.Last() == '/')
-                startingFolder = startingFolder.Remove(startingFolder.Length - 1, 1);
+            return GetDirectoryAt(directoryPath).Files.ToArray();
+        }
 
-            var dirnames = startingFolder.Split('/');
-            var directory = Manifest.Root.GetChildDirectoryOrNull(dirnames[0]);
-            for (int i = 1; i < dirnames.Length; i++)
+        public ReleaseManifestFileEntry[] GetFileEntriesFrom(string directoryPath, bool includeSubdirectories)
+        {
+            var directory = GetDirectoryAt(directoryPath);
+            if (includeSubdirectories) return directory.GetAllSubfiles().ToArray();
+            return directory.Files.ToArray();
+        }
+
+        public ReleaseManifestDirectoryEntry GetDirectoryAt(string directoryPath)
+        {
+            if (directoryPath.Last() == '/') directoryPath = directoryPath.Remove(directoryPath.Length - 1, 1);
+
+            var directoryChain = directoryPath.Split('/');
+            var directory = Manifest.Root.GetChildDirectoryOrNull(directoryChain[0]);
+            for (int i = 1; i < directoryChain.Length; i++)
             {
-                directory = directory.GetChildDirectoryOrNull(dirnames[i]);
+                directory = directory.GetChildDirectoryOrNull(directoryChain[i]);
             }
 
             if (directory == null)
-                throw new Exception(string.Format("Couldn't find folder {0} in the releasemanifest", startingFolder));
+                throw new Exception(string.Format("Couldn't find folder {0} in the releasemanifest", directoryPath));
 
-            return directory.GetAllSubfiles().ToArray();
+            return directory;
         }
     }
 }
