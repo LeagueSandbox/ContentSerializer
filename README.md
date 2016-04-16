@@ -35,12 +35,12 @@ If you're interested in contributing, come find us from [Discord](https://discor
 * Don't merge your own pull requests—get someone else to review/merge it
 * Pull requests should not be merged before the build has passed
     * If the build fails, ping the pull request creator and tell him to fix it
-* Files and folders in `CamelCase`
-* JSON dictionary keys in `CamelCase`
+* Files and folders in `PascalCase`
+* JSON dictionary keys in `PascalCase`
 
 # C# guidelines
-* Function names in `CamelCase`
+* Function names in `PascalCase`
 * Constants in `ALL_CAPS`
-* Private variables in `_pascalCaseWithUnderscore`
-* Public properties as getters / setters in `CamelCase`
+* Private variables in `_camelCaseWithUnderscore`
+* Public properties as getters / setters in `PascalCase`
 * All public variable access should happen through getters / setters
