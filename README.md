@@ -1,8 +1,20 @@
 [![Build status](https://ci.appveyor.com/api/projects/status/9h6vd7lgbvflk8o9?svg=true)](https://ci.appveyor.com/project/MythicManiac/contentserializer)
-# LeagueSandbox Content Compiler
-Content Compiler for the LeagueSandbox project
-
+# The League Sandbox project's game server
+Project website along with more specifications can be fround from: https://leaguesandbox.github.io/  
 Project chat on Discord: https://discord.gg/0vmmZ6VAwXB05gB6
+
+# Contributing
+We're looking for people interested in contributing to the project.  
+Currently the technologies we use include:
+* C#
+* Lua
+* Electron
+* Node.js
+* Angular
+* Socket.io
+
+For more detailed project specifications head over to https://leaguesandbox.github.io/  
+If you're interested in contributing, come find us from [Discord](https://discord.gg/0vmmZ6VAwXB05gB6) and let us know
 
 # Setup guide
 * Install Microsoft Visual Studio 2015 (Community Edition is fine)
@@ -23,108 +35,12 @@ Project chat on Discord: https://discord.gg/0vmmZ6VAwXB05gB6
 * Don't merge your own pull requests—get someone else to review/merge it
 * Pull requests should not be merged before the build has passed
     * If the build fails, ping the pull request creator and tell him to fix it
-* Pull requests should not be merged if they do not contain tests
 * Files and folders in `CamelCase`
-* JSON dictionary keys in `pascalCase`
+* JSON dictionary keys in `CamelCase`
 
-# Development flow
-1. Pull latest version of master
-    * `git fetch -p`
-    * `git pull origin master`
-2. Checkout to a new branch
-    * `git checkout -b <branch_name>`
-3. Make changes, do commits
-    * `git status` - List of changed files
-    * `git add <filename>` - Stage file for commit
-    * `git add -u` - Stage all updated files for commit
-    * `git add -A` - Stage all unstaged files for commit
-    * `git commit -m "<commit message>"` - Create commit
-4. Push to github
-    * `git push origin <branch_name>`
-5. Create pull request
-6. Checkout back to master
-    * `git checkout master`
-7. Repeat
-
-# Content data structure
-```
-Data
-    Base // Data package called "Base"
-        Champions
-        Items
-        Buffs
-        ...
-    SomeOtherPackage // Data package called "SomeOtherPackage"
-        Champions
-        ...
-GameMode
-    Somemode // Game mode package called "Somemode"
-        Data // Data that's local to this gamemode only
-            Champions
-            Items
-            Buffs
-            ...
-        Scripts // Game mode related logic
-            SomeScript.lua
-            SomeOtherScript.lua
-            ...
-        GameMode.json // Game mode configuration file
-```
-* Two kinds of packages
-    * Data packages
-        * Contain data and logic for things such as champions, items, buffs, etc...
-    * Game mode packages
-        * Contain configuration and logic for the gamemode
-        * Configuration that determines what data this mode depends on
-* Data should be stored in JSON files
-	* So for example, damage, range, health, etc...
-* Logic should be stored in lua files
-	* Lua is capable of using the data stored in the mentioned JSON files
-* These two should be always separate, so no mixing data into lua
-	* All predetermined values in JSON
-    
-# Planned overall configuration/infrastructure
-6 different components:
-* League of Legends 4.20 Client
-    * By Riot
-    * Will be modified only by the client patcher
-* Lobby client
-    * Client that can connect to lobby server
-    * Game mode selection
-    * User settings (champion, summoner spells, etc)
-    * Game mode settings (if a gamemode has configurable settings, say, kill limit for a deathmatch victory)
-        * Host only
-    * Receives custom content from the lobby client before the game is started
-* Client patcher
-    * Gets custom content from the lobby client
-    * Patches provided content into the client files
-    * In charge of reverting all changes as well
-* Lobby server
-    * Lobby clients can create lobbies
-        * Lobby creator gets host privileges
-    * Lobby clients can connect to existing lobbies
-    * Sends lobby clients the gamemode specific custom content
-    * Takes care of launching the game server when the game is started
-* Game server
-    * Receives game settings from the lobby server
-    * Runs the game according to the received settings
-* Content compiler
-    * Turns the custom content into a format which the League of Legends client can interpret
-    * Pack into packages
-    * Packages flow through other components like so: Package -> Lobby server -> Lobby client -> Client patcher -> League of Legends
-
-# LeagueSandbox Credits
-|              |                         |                                 |
-|--------------|-------------------------|---------------------------------|
-| Intline9     | Original creator        | https://github.com/Intline9     |
-| Ltsstar      | Contributor             | https://github.com/ltsstar      |
-| Elyotna      | Contributor             | https://github.com/Elyotna      |
-| Horato       | C# port original author | https://github.com/horato       |
-| Eddy5641     | Contributor             | https://github.com/eddy5641     |
-| Chutch1122   | Contributor             | https://github.com/chutch1122   |
-| Spudgy       | Contributor             | https://github.com/spudgy       |
-| Mythic       | Current lead developer  | https://github.com/MythicManiac |
-| Coquicox     | Contributor             | https://github.com/coquicox     |
-| NitroXenon   | Contributor             | https://github.com/NitroXenon   |
-| Fighter19    | Contributor             | https://github.com/Fighter19    |
-| Molenzwiebel | Contributor             | https://github.com/molenzwiebel |
+# C# guidelines
+* Function names in `CamelCase`
+* Constants in `ALL_CAPS`
+* Private variables in `_pascalCaseWithUnderscore`
+* Public properties as getters / setters in `CamelCase`
+* All public variable access should happen through getters / setters
