@@ -1,6 +1,6 @@
 [![Build status](https://ci.appveyor.com/api/projects/status/9h6vd7lgbvflk8o9/branch/master?svg=true)](https://ci.appveyor.com/project/MythicManiac/contentserializer/branch/master)
 [![codecov.io](https://codecov.io/github/LeagueSandbox/ContentSerializer/coverage.svg?branch=master)](https://codecov.io/github/LeagueSandbox/ContentSerializer?branch=master)
-# The League Sandbox project's game server
+# The League Sandbox project's content serializer
 Project website along with more specifications can be fround from: https://leaguesandbox.github.io/  
 Project chat on Discord: https://discord.gg/0vmmZ6VAwXB05gB6
 
