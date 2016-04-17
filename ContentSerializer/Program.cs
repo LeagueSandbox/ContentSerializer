@@ -9,6 +9,7 @@ using LeagueLib.Tools;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using LeagueSandbox.ContentSerializer.Exporters;
+using LeagueSandbox.ContentSerializer.ContentTypes;
 
 namespace LeagueSandbox.ContentSerializer
 {
@@ -31,10 +32,21 @@ namespace LeagueSandbox.ContentSerializer
             var radsPath = GetRadsPath(arguments);
             var manager = new ArchiveFileManager(radsPath);
 
-            //TestingAndDebugging(manager);
+            TestingAndDebugging(manager);
             var fontConfig = FontConfigFile.Load(manager, "en_US");
-            var itemExporter = new ItemExporter();
-            itemExporter.Export(manager, fontConfig);
+            //var itemExporter = new InibinExporter<Item>(
+            //    "ConversionMaps/ItemConversionMap.json",
+            //    "DATA/Items",
+            //    "TestData/Items/"
+            //);
+            //itemExporter.Export(manager, fontConfig);
+            var spellExporter = new InibinExporter<Spell>(
+                "ConversionMaps/SpellConversionMap.json",
+                "DATA/Spells",
+                "TestData/Spells/"
+            );
+            spellExporter.Export(manager, fontConfig);
+
 
             timer.Stop();
             Console.WriteLine("Elapsed time: {0} ms", timer.ElapsedMilliseconds);
@@ -44,15 +56,15 @@ namespace LeagueSandbox.ContentSerializer
         static void TestingAndDebugging(ArchiveFileManager manager)
         {
 
-            //ExtractItemData(manager);
-            //ConvertDraftToMap("itemConversionMapDraft.json", "itemConversionMap.json");
+            //ExtractSpellData(manager, "result-420-420.json");
+            //ConvertDraftToMap("spellConversionMapDraft.json", "spellConversionMap.json");
             ////ReformatResult();
             //var conversionMap = ConversionMap.Load("ItemConversionMap.json");
             //var converter = new InibinConverter(conversionMap);
             //ExportData(manager, converter);
-            var mapping = (JObject)JToken.Parse(File.ReadAllText("ItemConversionMap.json"));
-            Sort(mapping);
-            File.WriteAllText("ItemConversionMapSorted.json", mapping.ToString());
+            //var mapping = (JObject)JToken.Parse(File.ReadAllText("ItemConversionMap.json"));
+            //Sort(mapping);
+            //File.WriteAllText("ItemConversionMapSorted.json", mapping.ToString());
             //ExtractItemData(manager, "result-420-420.json");
         }
 
@@ -170,6 +182,50 @@ namespace LeagueSandbox.ContentSerializer
             }
             var mappingJson = JsonConvert.SerializeObject(mapping, Formatting.Indented);
             File.WriteAllText(target, mappingJson);
+        }
+
+        static void ExtractSpellData(ArchiveFileManager manager, string hashSourcesPath)
+        {
+            var data = File.ReadAllText(hashSourcesPath);
+            var hashSourceCollection = JsonConvert.DeserializeObject<LeagueHashSourceCollection>(data);
+            var hashCollection = new LeagueHashCollection(hashSourceCollection);
+
+            var itemHashes = new HashSet<uint>();
+            var itemFiles = manager.GetFileEntriesFrom("DATA/Spells", true);
+            foreach (var entry in itemFiles)
+            {
+                if (!entry.FullName.Contains(".inibin")) continue;
+                if (entry.FullName.Contains(".lua")) continue;
+                var file = manager.ReadFile(entry.FullName).Uncompress();
+                var inibin = Inibin.DeserializeInibin(file, entry.FullName);
+                foreach (var kvp in inibin.Content)
+                {
+                    if (itemHashes.Contains(kvp.Key)) continue;
+                    itemHashes.Add(kvp.Key);
+                }
+            }
+
+            var mapping = new LeagueHashCollection();
+            foreach (var hash in itemHashes)
+            {
+                if (!hashCollection.Hashes.ContainsKey(hash)) continue;
+                mapping.Hashes.Add(hash, hashCollection.Hashes[hash]);
+            }
+
+            var result = new LeagueHashCollection();
+            foreach (var hash in mapping.Hashes)
+            {
+                var sectionFilterer = new SectionFilterer(hash.Value);
+                sectionFilterer.ApplyFilter(new FilterPlaintextSections());
+                sectionFilterer.ApplyFilter(new FilterDuplicateSections());
+                sectionFilterer.ApplyFilter(new FilterPlaintextKeys());
+                result.Hashes.Add(hash.Key, sectionFilterer.CurrentSections);
+            }
+            var conflictResolver = new ConflictResolver();
+            //result = conflictResolver.ResolveConflicts(result);
+
+            var itemMappingJson = JsonConvert.SerializeObject(result, Formatting.Indented);
+            File.WriteAllText("spellConversionMapDraft.json", itemMappingJson);
         }
 
         static void ExtractItemData(ArchiveFileManager manager, string hashSourcesPath)

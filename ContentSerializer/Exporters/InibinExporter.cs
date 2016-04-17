@@ -1,38 +1,38 @@
 ﻿using LeagueLib.Files;
 using LeagueLib.Tools;
 using LeagueSandbox.ContentSerializer.ContentTypes;
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace LeagueSandbox.ContentSerializer.Exporters
 {
-    public class ItemExporter
+    public class InibinExporter<T> where T : ContentType, new()
     {
         private InibinConverter _converter;
+        private string _inputDirectory;
+        private string _outputDirectory;
 
-        public ItemExporter()
+        public InibinExporter(string conversionMap, string inputDirectory, string outputDirectory)
         {
-            _converter = new InibinConverter(ConversionMap.Load("ConversionMaps/ItemConversionMap.json"));
+            _inputDirectory = inputDirectory;
+            _outputDirectory = outputDirectory;
+            _converter = new InibinConverter(ConversionMap.Load(conversionMap));
         }
 
         public void Export(ArchiveFileManager manager, FontConfigFile localization)
         {
-            var files = manager.GetFileEntriesFrom("DATA/Items");
+            var files = manager.GetFileEntriesFrom(_inputDirectory);
             foreach (var file in files)
             {
                 // Make sure we have an inibin
                 if (!file.Name.EndsWith(".inibin")) continue;
+                if (file.Name.Contains(".lua")) continue;
 
                 // Load and convert
                 var inibin = manager.ReadInibin(file.FullName);
-                var item = Item.FromInibin(inibin, _converter, localization);
+                var item = ContentType.FromInibin<T>(inibin, _converter, localization);
 
                 // Find save path and create directory
-                var savePath = string.Format("TestData/Items/{0}/{0}.json", item.FileName);
+                var savePath = string.Format("{0}{1}/{1}.json", _outputDirectory, item.FileName);
                 var saveDirectory = Path.GetDirectoryName(savePath);
                 if (!Directory.Exists(saveDirectory)) Directory.CreateDirectory(saveDirectory);
                 File.WriteAllText(savePath, item.Serialize());
