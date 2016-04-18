@@ -1,42 +1,58 @@
-﻿using LeagueLib.Files;
+﻿using LeagueLib.Files.Manifest;
 using LeagueLib.Tools;
-using LeagueSandbox.ContentSerializer.ContentTypes;
+using System;
 using System.IO;
+using System.Text.RegularExpressions;
 
 namespace LeagueSandbox.ContentSerializer.Exporters
 {
-    public class InibinExporter<T> where T : ContentType, new()
+    public class InibinExporter
     {
-        private InibinConverter _converter;
-        private string _inputDirectory;
-        private string _outputDirectory;
+        private ArchiveFileManager _manager;
 
-        public InibinExporter(string conversionMap, string inputDirectory, string outputDirectory)
+        public InibinExporter(ArchiveFileManager manager)
         {
-            _inputDirectory = inputDirectory;
-            _outputDirectory = outputDirectory;
-            _converter = new InibinConverter(ConversionMap.Load(conversionMap));
+            _manager = manager;
         }
 
-        public void Export(ArchiveFileManager manager, FontConfigFile localization)
+        public void Export(ContentConfiguration configuration)
         {
-            var files = manager.GetFileEntriesFrom(_inputDirectory);
-            foreach (var file in files)
+            // Has to be done this way so we can use the patterns for priority in case of conflicts
+            foreach (var pattern in configuration.ResourcePatterns)
             {
-                // Make sure we have an inibin
-                if (!file.Name.EndsWith(".inibin")) continue;
-                if (file.Name.Contains(".lua")) continue;
-
-                // Load and convert
-                var inibin = manager.ReadInibin(file.FullName);
-                var item = ContentType.FromInibin<T>(inibin, _converter, localization);
-
-                // Find save path and create directory
-                var savePath = string.Format("{0}{1}/{1}.json", _outputDirectory, item.FileName);
-                var saveDirectory = Path.GetDirectoryName(savePath);
-                if (!Directory.Exists(saveDirectory)) Directory.CreateDirectory(saveDirectory);
-                File.WriteAllText(savePath, item.Serialize());
+                ExportMatches(configuration, pattern);
             }
+        }
+
+        private void ExportMatches(ContentConfiguration configuration, Regex pattern)
+        {
+            var files = _manager.GetAllFileEntries();
+            foreach(var file in files)
+            {
+                if (!pattern.IsMatch(file.FullName)) continue;
+                ExportFile(configuration, file);
+            }
+        }
+
+        private void ExportFile(ContentConfiguration configuration, ReleaseManifestFileEntry file)
+        {
+            // Load and convert
+            var inibin = _manager.ReadInibin(file.FullName);
+            var item = ContentFile.FromInibin(inibin, configuration);
+
+            // Find save path
+            var savePath = string.Format(
+                "ExportOutput/{0}/{1}/{1}.json",
+                configuration.OutputDirectory,
+                item.Id.ToString()
+            );
+
+            // Create save directory if one doesn't exist
+            var saveDirectory = Path.GetDirectoryName(savePath);
+            if (!Directory.Exists(saveDirectory)) Directory.CreateDirectory(saveDirectory);
+
+            // Save the converted data
+            File.WriteAllText(savePath, item.Serialize());
         }
     }
 }
