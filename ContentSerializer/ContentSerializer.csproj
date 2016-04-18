@@ -49,9 +49,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConflictResolver.cs" />
-    <Compile Include="ContentTypes\ContentType.cs" />
-    <Compile Include="ContentTypes\Item.cs" />
-    <Compile Include="ContentTypes\Spell.cs" />
+    <Compile Include="ContentConfiguration.cs" />
+    <Compile Include="ContentFile.cs" />
     <Compile Include="ConversionMap.cs" />
     <Compile Include="Exporters\InibinExporter.cs" />
     <Compile Include="HashForce\HashForcer.cs" />

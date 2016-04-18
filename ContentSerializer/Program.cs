@@ -9,7 +9,6 @@ using LeagueLib.Tools;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using LeagueSandbox.ContentSerializer.Exporters;
-using LeagueSandbox.ContentSerializer.ContentTypes;
 
 namespace LeagueSandbox.ContentSerializer
 {
@@ -32,21 +31,14 @@ namespace LeagueSandbox.ContentSerializer
             var radsPath = GetRadsPath(arguments);
             var manager = new ArchiveFileManager(radsPath);
 
-            TestingAndDebugging(manager);
-            var fontConfig = FontConfigFile.Load(manager, "en_US");
-            //var itemExporter = new InibinExporter<Item>(
-            //    "ConversionMaps/ItemConversionMap.json",
-            //    "DATA/Items",
-            //    "TestData/Items/"
-            //);
-            //itemExporter.Export(manager, fontConfig);
-            var spellExporter = new InibinExporter<Spell>(
-                "ConversionMaps/SpellConversionMap.json",
-                "DATA/Spells",
-                "TestData/Spells/"
-            );
-            spellExporter.Export(manager, fontConfig);
+            var localization = FontConfigFile.Load(manager, "en_US");
+            var exporter = new InibinExporter(manager);
 
+            var itemConfiguration = new ContentConfiguration.Item(localization);
+            var spellConfiguration = new ContentConfiguration.Spell(localization);
+
+            exporter.Export(itemConfiguration);
+            exporter.Export(spellConfiguration);
 
             timer.Stop();
             Console.WriteLine("Elapsed time: {0} ms", timer.ElapsedMilliseconds);
@@ -55,7 +47,6 @@ namespace LeagueSandbox.ContentSerializer
 
         static void TestingAndDebugging(ArchiveFileManager manager)
         {
-
             //ExtractSpellData(manager, "result-420-420.json");
             //ConvertDraftToMap("spellConversionMapDraft.json", "spellConversionMap.json");
             ////ReformatResult();
