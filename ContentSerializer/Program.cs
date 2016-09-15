@@ -59,20 +59,59 @@ namespace LeagueSandbox.ContentSerializer
             //ExtractItemData(manager, "result-420-420.json");
         }
 
-        public static void Sort(JObject jObj)
+        public static void ProcessAndSort(JObject jObj)
         {
             var props = jObj.Properties().ToList();
-            foreach (var prop in props)
-            {
-                prop.Remove();
-            }
+            jObj.RemoveAll();
 
             foreach (var prop in props.OrderBy(p => p.Name))
             {
                 jObj.Add(prop);
                 if (prop.Value is JObject)
-                    Sort((JObject)prop.Value);
+                {
+                    ProcessAndSort((JObject)prop.Value);
+                    continue;
+                }
+                ProcessPropertyValue(prop);
             }
+        }
+
+        public static void ProcessPropertyValue(JProperty property)
+        {
+            ProcessDecimalProperty(property);
+            ProcessBooleanProperty(property);
+        }
+
+        public static void ProcessBooleanProperty(JProperty property)
+        {
+            var propVal = ((string)property.Value).ToLowerInvariant();
+            switch(propVal)
+            {
+                case "yes":
+                    property.Value = "true";
+                    return;
+                case "no":
+                    property.Value = "false";
+                    return;
+            }
+        }
+
+        public static void ProcessDecimalProperty(JProperty property)
+        {
+            var propVal = (string)property.Value;
+
+            if (!propVal.StartsWith("."))
+            {
+                return;
+            }
+
+            try
+            {
+                var tempVal = Convert.ToDouble(propVal);
+                property.Value = string.Format("0{0}", propVal);
+                return;
+            }
+            catch { }
         }
 
         static void ReformatResult()

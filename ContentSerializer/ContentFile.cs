@@ -1,12 +1,8 @@
 ﻿using LeagueLib.Files;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace LeagueSandbox.ContentSerializer
 {
@@ -50,7 +46,7 @@ namespace LeagueSandbox.ContentSerializer
             var metaData = new JProperty("MetaData", JObject.FromObject(MetaData));
             var values = new JProperty("Values", JObject.FromObject(Values));
             var data = new JObject(metaData, values);
-            Program.Sort(data);
+            Program.ProcessAndSort(data);
             var result = new StringWriter();
             var jsonWriter = new JsonTextWriter(result);
             var serializer = new JsonSerializer();
@@ -67,7 +63,7 @@ namespace LeagueSandbox.ContentSerializer
             result.Id = configuration.FindId(source.FilePath);
             result.Name = configuration.FindName(result);
             result.ResourcePath = source.FilePath;
-            result.ContentFormatVersion = 2;
+            result.ContentFormatVersion = 3;
             return result;
         }
     }
