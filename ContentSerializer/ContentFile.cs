@@ -46,7 +46,7 @@ namespace LeagueSandbox.ContentSerializer
             var metaData = new JProperty("MetaData", JObject.FromObject(MetaData));
             var values = new JProperty("Values", JObject.FromObject(Values));
             var data = new JObject(metaData, values);
-            Program.ProcessAndSort(data);
+            Program.SanitizeAndSort(data);
             var result = new StringWriter();
             var jsonWriter = new JsonTextWriter(result);
             var serializer = new JsonSerializer();
@@ -63,7 +63,7 @@ namespace LeagueSandbox.ContentSerializer
             result.Id = configuration.FindId(source.FilePath);
             result.Name = configuration.FindName(result);
             result.ResourcePath = source.FilePath;
-            result.ContentFormatVersion = 3;
+            result.ContentFormatVersion = 4;
             return result;
         }
     }

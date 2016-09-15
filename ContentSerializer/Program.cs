@@ -59,7 +59,7 @@ namespace LeagueSandbox.ContentSerializer
             //ExtractItemData(manager, "result-420-420.json");
         }
 
-        public static void ProcessAndSort(JObject jObj)
+        public static void SanitizeAndSort(JObject jObj)
         {
             var props = jObj.Properties().ToList();
             jObj.RemoveAll();
@@ -69,20 +69,20 @@ namespace LeagueSandbox.ContentSerializer
                 jObj.Add(prop);
                 if (prop.Value is JObject)
                 {
-                    ProcessAndSort((JObject)prop.Value);
+                    SanitizeAndSort((JObject)prop.Value);
                     continue;
                 }
-                ProcessPropertyValue(prop);
+                SanitizePropertyValue(prop);
             }
         }
 
-        public static void ProcessPropertyValue(JProperty property)
+        public static void SanitizePropertyValue(JProperty property)
         {
-            ProcessDecimalProperty(property);
-            ProcessBooleanProperty(property);
+            SanitizeBooleanProperty(property);
+            SanitizeDecimalProperty(property);
         }
 
-        public static void ProcessBooleanProperty(JProperty property)
+        public static void SanitizeBooleanProperty(JProperty property)
         {
             var propVal = ((string)property.Value).ToLowerInvariant();
             switch(propVal)
@@ -96,11 +96,22 @@ namespace LeagueSandbox.ContentSerializer
             }
         }
 
-        public static void ProcessDecimalProperty(JProperty property)
+        public static void SanitizeDecimalProperty(JProperty property)
         {
             var propVal = (string)property.Value;
+            var format = "";
 
-            if (!propVal.StartsWith("."))
+            if (propVal.StartsWith("."))
+            {
+                format = "0.";
+                propVal = propVal.Remove(0, 1);
+            }
+            if (propVal.StartsWith("-."))
+            {
+                format = "-0.";
+                propVal = propVal.Remove(0, 2);
+            }
+            if(format == "")
             {
                 return;
             }
@@ -108,7 +119,7 @@ namespace LeagueSandbox.ContentSerializer
             try
             {
                 var tempVal = Convert.ToDouble(propVal);
-                property.Value = string.Format("0{0}", propVal);
+                property.Value = string.Format("{0}{1}", propVal, format);
                 return;
             }
             catch { }
