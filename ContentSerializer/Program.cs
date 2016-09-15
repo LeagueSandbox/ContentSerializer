@@ -119,7 +119,7 @@ namespace LeagueSandbox.ContentSerializer
             try
             {
                 var tempVal = Convert.ToDouble(propVal);
-                property.Value = string.Format("{0}{1}", propVal, format);
+                property.Value = string.Format("{0}{1}", format, propVal);
                 return;
             }
             catch { }
