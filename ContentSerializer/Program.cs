@@ -59,20 +59,70 @@ namespace LeagueSandbox.ContentSerializer
             //ExtractItemData(manager, "result-420-420.json");
         }
 
-        public static void Sort(JObject jObj)
+        public static void SanitizeAndSort(JObject jObj)
         {
             var props = jObj.Properties().ToList();
-            foreach (var prop in props)
-            {
-                prop.Remove();
-            }
+            jObj.RemoveAll();
 
             foreach (var prop in props.OrderBy(p => p.Name))
             {
                 jObj.Add(prop);
                 if (prop.Value is JObject)
-                    Sort((JObject)prop.Value);
+                {
+                    SanitizeAndSort((JObject)prop.Value);
+                    continue;
+                }
+                SanitizePropertyValue(prop);
             }
+        }
+
+        public static void SanitizePropertyValue(JProperty property)
+        {
+            SanitizeBooleanProperty(property);
+            SanitizeDecimalProperty(property);
+        }
+
+        public static void SanitizeBooleanProperty(JProperty property)
+        {
+            var propVal = ((string)property.Value).ToLowerInvariant();
+            switch(propVal)
+            {
+                case "yes":
+                    property.Value = "true";
+                    return;
+                case "no":
+                    property.Value = "false";
+                    return;
+            }
+        }
+
+        public static void SanitizeDecimalProperty(JProperty property)
+        {
+            var propVal = (string)property.Value;
+            var format = "";
+
+            if (propVal.StartsWith("."))
+            {
+                format = "0.";
+                propVal = propVal.Remove(0, 1);
+            }
+            if (propVal.StartsWith("-."))
+            {
+                format = "-0.";
+                propVal = propVal.Remove(0, 2);
+            }
+            if(format == "")
+            {
+                return;
+            }
+
+            try
+            {
+                var tempVal = Convert.ToDouble(propVal);
+                property.Value = string.Format("{0}{1}", propVal, format);
+                return;
+            }
+            catch { }
         }
 
         static void ReformatResult()
