@@ -542,8 +542,10 @@ namespace LeagueSandbox.ContentSerializer
                 if (!mapping.ContainsKey(section.Key)) mapping[section.Key] = new Dictionary<string, uint>();
                 mapping[section.Key].Add(name, hash);
             }
-            var mappingJson = JsonConvert.SerializeObject(mapping, Formatting.Indented);
-            File.WriteAllText(target, mappingJson);
+
+            var mappingJson = JObject.FromObject(mapping);
+            Program.SanitizeAndSort(mappingJson);
+            File.WriteAllText(target,JsonConvert.SerializeObject(mappingJson, Formatting.Indented));
             return 0;
         }
 
