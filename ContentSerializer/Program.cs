@@ -232,7 +232,8 @@ namespace LeagueSandbox.ContentSerializer
             var hashCollection = new LeagueHashCollection(hashSourceCollection);
 
             var itemHashes = new HashSet<uint>();
-            var itemFiles = manager.GetFileEntriesFrom("DATA/Spells", true);
+            //From Data/Spells/NAME.inibin or Data/Shared/NAME.inibin or Data/Characters/CHARACTER/CHARACTER.inibin (no subdirectories)
+            var itemFiles = manager.GetMatchFileEntries(@"Data(|\/Characters\/([^\/]+)|\/Shared)\/Spells\/([^\/]+)\.inibin");
             foreach (var entry in itemFiles)
             {
                 if (!entry.FullName.Contains(".inibin")) continue;
@@ -276,7 +277,8 @@ namespace LeagueSandbox.ContentSerializer
             var hashCollection = new LeagueHashCollection(hashSourceCollection);
 
             var itemHashes = new HashSet<uint>();
-            var itemFiles = manager.GetFileEntriesFrom("DATA/Items", true);
+            //From Data/Items/NAME.inibin (no subdirectories)
+            var itemFiles = manager.GetMatchFileEntries(@"Data\/Items\/([^\/]+)\.inibin");
             foreach(var entry in itemFiles)
             {
                 if (!entry.FullName.Contains(".inibin")) continue;
