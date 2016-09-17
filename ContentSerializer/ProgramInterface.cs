@@ -530,5 +530,45 @@ namespace LeagueSandbox.ContentSerializer
             Console.WriteLine("Total: " + c);
         }
 
+        public int ExportToMap(string target)
+        {
+            var mapping = new Dictionary<string, Dictionary<string, uint>>();
+            foreach (var entry in _draft.Hashes)
+            {
+                var hash = entry.Key;
+                var section = entry.Value.First();
+                var name = section.Value.First();
+
+                if (!mapping.ContainsKey(section.Key)) mapping[section.Key] = new Dictionary<string, uint>();
+                mapping[section.Key].Add(name, hash);
+            }
+            var mappingJson = JsonConvert.SerializeObject(mapping, Formatting.Indented);
+            File.WriteAllText(target, mappingJson);
+            return 0;
+        }
+
+        public int ComparetToMap(string target, string output)
+        {
+            if (!File.Exists(target))
+                return -3;
+
+            var data = File.ReadAllText(target);
+            var nmap = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, uint>>>(data);
+
+            var mapping = new Dictionary<string, Dictionary<string, uint>>();
+            foreach (var entry in _draft.Hashes)
+            {
+                var hash = entry.Key;
+                var section = entry.Value.First();
+                var name = section.Value.First();
+
+                if (!mapping.ContainsKey(section.Key)) mapping[section.Key] = new Dictionary<string, uint>();
+                mapping[section.Key].Add(name, hash);
+            }
+            return 0;
+
+        }
+
+
     }
 }

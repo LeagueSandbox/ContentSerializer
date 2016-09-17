@@ -19,6 +19,8 @@ namespace LeagueSandbox.ContentSerializer
         private static Dictionary<string, string> paterns = new Dictionary<string, string>
         {
             {"items", @"Data\/Items\/([^\/]+)\.inibin"},
+            {"itemgroups", @"Data\/Items\/ItemGroups\/([^\/]+)\.inibin"},
+            {"itemmetadata", @"Data[\/\\]Items[\/\\]metadata[\/\\](.*).inibin"},
             {"spells", @"Data(|\/Characters\/([^\/]+)|\/Shared)\/Spells\/([^\/]+)\.inibin"},
             {"characters", @"Data\/Characters\/([^\/]+)(\/\1\.inibin)"},
             {"talents", @"Data\/Talents\/([^\/]+)\.inibin"},
@@ -140,6 +142,9 @@ namespace LeagueSandbox.ContentSerializer
                 case "importdraft":
                     if (len != 2) return -1;
                     return prog.ImportDraft(cmd[1]);
+                case "exportmap":
+                    if (len != 2) return -1;
+                    return prog.ExportToMap(cmd[1]);
                 case "cleardraft":
                     if (len != 1) return -1;
                     prog.ClearDraft();
@@ -199,6 +204,7 @@ namespace LeagueSandbox.ContentSerializer
                     Console.WriteLine("importdraft [file] - Adds draft");
                     Console.WriteLine("importmapdraft [file] - Adds draft from conversion map");
                     Console.WriteLine("exportdraft [file] - Save draft file");
+                    Console.WriteLine("exportmap [file] - Export Conversion map");
                     Console.WriteLine("cleardraft - Clears draft");
                     Console.WriteLine("-------Draft Manual:");
                     Console.WriteLine("test [name] [section] - Test for hash and add it to draft/strings");
