@@ -66,5 +66,17 @@ namespace LeagueSandbox.ContentSerializer
             result.ContentFormatVersion = 4;
             return result;
         }
+
+        public static ContentFile FromInibin(Inibin source, InibinConverter converter)
+        {
+            var result = new ContentFile();
+            result.Values = result.Values = converter.Convert(source);
+            result.Id = 0;
+            result.Name = "";
+            result.ResourcePath = source.FilePath;
+            result.ContentFormatVersion = 2;
+            return result;
+        }
+
     }
 }
