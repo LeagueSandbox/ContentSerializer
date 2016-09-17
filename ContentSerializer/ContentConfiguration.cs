@@ -57,6 +57,7 @@ namespace LeagueSandbox.ContentSerializer
                 {
                     return new Regex[] {
                         new Regex(@"^DATA\/Spells\/[^\/]*\.inibin\z"),
+                        new Regex(@"^DATA\/Shared\/Spells\/[^\/]*\.inibin\z"),
                         new Regex(@"^DATA\/Characters\/.*\/Spells\/[^\/]*\.inibin\z")
                     };
                 }

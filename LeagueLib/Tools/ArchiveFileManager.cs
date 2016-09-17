@@ -7,6 +7,7 @@ using System.IO;
 using LeagueLib.Files;
 using LeagueLib.Files.Manifest;
 using LeagueLib.Utils;
+using System.Text.RegularExpressions;
 
 namespace LeagueLib.Tools
 {
@@ -320,6 +321,11 @@ namespace LeagueLib.Tools
             var directory = GetDirectoryAt(directoryPath);
             if (includeSubdirectories) return directory.GetAllSubfiles().ToArray();
             return directory.Files.ToArray();
+        }
+
+        public ReleaseManifestFileEntry[] GetMatchFileEntries(string regex)
+        {
+            return Manifest.Files.Where(e => Regex.IsMatch(e.FullName,regex, RegexOptions.IgnoreCase)).ToArray();
         }
 
         public ReleaseManifestDirectoryEntry GetDirectoryAt(string directoryPath)
