@@ -59,6 +59,32 @@ namespace LeagueSandbox.ContentSerializer
             }
             return result;
         }
+
+        public static ConversionMap FromHashCollection(LeagueHashCollection col)
+        {
+            var result = new ConversionMap();
+            var mapping = new Dictionary<string, Dictionary<string, uint>>();
+            foreach (var entry in col.Hashes)
+            {
+                var hash = entry.Key;
+                var section = entry.Value.First();
+                var name = section.Value.First();
+                if (!mapping.ContainsKey(section.Key)) mapping[section.Key] = new Dictionary<string, uint>();
+                mapping[section.Key].Add(name, hash);
+            }
+
+            foreach (var kvp in mapping)
+            {
+                foreach (var entry in kvp.Value)
+                {
+                    var key = new InibinKey(kvp.Key, entry.Key);
+                    var hash = entry.Value;
+                    result.Add(key, hash);
+                }
+            }
+            return result;
+        }
+
     }
 
     public class InibinConverter

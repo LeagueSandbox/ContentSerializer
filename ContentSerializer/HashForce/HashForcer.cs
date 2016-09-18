@@ -128,6 +128,28 @@ namespace LeagueSandbox.ContentSerializer.HashForce
             if (newline) Console.WriteLine(message);
             else Console.Write(message);
         }
+
+        public void SetHashes(HashSet<uint> hset)
+        {
+            _hashes = hset;
+        }
+
+        public void SetSources(List<string> list)
+        {
+            var stringList = new HashSet<string>();
+            foreach (string value in list)
+            {
+                if (string.IsNullOrEmpty(value)) continue;
+                if (stringList.Contains(value)) continue;
+                stringList.Add(value);
+            }
+            _stringSources = stringList.ToArray();
+        }
+
+        public void Clear()
+        {
+            _hashes.Clear();
+        }
     }
 
     public class HashWorker

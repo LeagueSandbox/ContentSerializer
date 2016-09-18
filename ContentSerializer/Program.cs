@@ -24,6 +24,8 @@ namespace LeagueSandbox.ContentSerializer
 
         static void Main(string[] args)
         {
+            new ProgramInterfaceCLI().ConsoleInterface();
+            return;
             var timer = new Stopwatch();
             timer.Start();
 
