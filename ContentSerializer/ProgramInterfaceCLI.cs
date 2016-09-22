@@ -192,6 +192,9 @@ namespace LeagueSandbox.ContentSerializer
                     if (len != 3) return -1;
                     prog.FindFiles(cmd[1], cmd[2]);
                     break;
+                case "loadpatern":
+                    if (len != 2) return -1;
+                    return LoadPatern(cmd[1]);
                 case "help":
                     Console.WriteLine("Command/Altcommand [argument] [*optional] - descirpiton: ");
                     Console.WriteLine("---------------------------------------------------------");
@@ -200,6 +203,7 @@ namespace LeagueSandbox.ContentSerializer
                     Console.WriteLine("exit/quit/close - Exits CLI");
                     Console.WriteLine("count [*all|strings,hashes,draft,files] - Counts stuff (default all)");
                     Console.WriteLine("-------Files:");
+                    Console.WriteLine("loadpatern [file] - Patern from file");
                     Console.WriteLine("addpatern [patern] - Set inibin match patern");
                     Console.WriteLine("addregex [regex] - Set inibin match regex");
                     Console.WriteLine("listfiles - Prints loaded file list");
