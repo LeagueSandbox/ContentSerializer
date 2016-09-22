@@ -15,8 +15,8 @@ namespace LeagueSandbox.ContentSerializer
     {
         
 
-        private static ProgramInterface prog = new ProgramInterface();
-        private static Dictionary<string, string> paterns = new Dictionary<string, string>
+        private ProgramInterface prog = new ProgramInterface();
+        private Dictionary<string, string> paterns = new Dictionary<string, string>
         {
             {"items", @"Data\/Items\/([^\/]+)\.inibin"},
             {"itemgroups", @"Data\/Items\/ItemGroups\/([^\/]+)\.inibin"},
@@ -27,6 +27,17 @@ namespace LeagueSandbox.ContentSerializer
             {"skins", @"Data\/Characters\/([^\/]+)\/Skins\/([^\/]+)\/\2\.inibin"},
             {"all", @"(.*)\.inibin"}
         };
+
+        public int LoadPatern(string filename)
+        {
+            if (!File.Exists(filename))
+                return -3;
+            var pat = File.ReadAllText(filename);
+            if (!IsValidRegex(pat))
+                return -3;
+            prog.AddPatern(pat);
+            return 0;
+        }
 
         public ProgramInterfaceCLI()
         {

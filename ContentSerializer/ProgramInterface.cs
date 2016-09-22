@@ -72,6 +72,7 @@ namespace LeagueSandbox.ContentSerializer
             foreach(var patern in _paterns)
             {
                 Console.WriteLine(c + " - " + patern);
+                c++;
             }
         }
 
