@@ -177,6 +177,10 @@ namespace LeagueSandbox.ContentSerializer
                     if (len != 5) return -1;
                     prog.RangeTest(cmd[1], cmd[2], Int32.Parse(cmd[3]), Int32.Parse(cmd[4]), false);
                     break;
+                case "findfiles":
+                    if (len != 3) return -1;
+                    prog.FindFiles(cmd[1], cmd[2]);
+                    break;
                 case "help":
                     Console.WriteLine("Command/Altcommand [argument] [*optional] - descirpiton: ");
                     Console.WriteLine("---------------------------------------------------------");
@@ -213,6 +217,7 @@ namespace LeagueSandbox.ContentSerializer
                     Console.WriteLine("conflict - Prints conflicts");
                     Console.WriteLine("draftmatch - Leaves only hashes that match");
                     Console.WriteLine("unduplicatedraft - Leaves only non duplciate strings");
+                    Console.WriteLine("findfiles - Finds files");
                     Console.WriteLine("---------------------------------------------------------");
                     break;
                 default:

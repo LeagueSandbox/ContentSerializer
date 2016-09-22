@@ -549,6 +549,21 @@ namespace LeagueSandbox.ContentSerializer
             return 0;
         }
 
+        public void FindFiles(string section, string name)
+        {
+            UInt32 hash = HashFunctions.GetInibinHash(section, name);
+            foreach(var entry in _files)
+            {
+                var file = _manager.ReadFile(entry.FullName).Uncompress();
+                var inibin = Inibin.DeserializeInibin(file, entry.FullName);
+                foreach (var kvp in inibin.Content)
+                {
+                    if(kvp.Key == hash)
+                        Console.WriteLine("{0}: {1}", entry.FullName, kvp.Value.Value.ToString());
+                }
+            }
+        }
+
         public int ComparetToMap(string target, string output)
         {
             if (!File.Exists(target))
