@@ -12,6 +12,7 @@ using Newtonsoft.Json.Linq;
 using System.Xml.Linq;
 using LeagueLib.Files.Manifest;
 using System.Text.RegularExpressions;
+using LeagueSandbox.ContentSerializer.Exporters;
 
 namespace LeagueSandbox.ContentSerializer
 {
@@ -585,6 +586,18 @@ namespace LeagueSandbox.ContentSerializer
             }
             return 0;
 
+        }
+
+        public void ContentDataMake()
+        {
+            var localization = FontConfigFile.Load(_manager, "en_US");
+            var exporter = new InibinExporter(_manager);
+
+            var itemConfiguration = new ContentConfiguration.Item(localization);
+            var spellConfiguration = new ContentConfiguration.Spell(localization);
+
+            exporter.Export(itemConfiguration);
+            exporter.Export(spellConfiguration);
         }
 
 

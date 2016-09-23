@@ -31,10 +31,10 @@ namespace LeagueSandbox.ContentSerializer
         public int LoadPatern(string filename)
         {
             if (!File.Exists(filename))
-                return -3;
+                return -2;
             var pat = File.ReadAllText(filename);
             if (!IsValidRegex(pat))
-                return -3;
+                return -2;
             prog.AddPatern(pat);
             return 0;
         }
@@ -195,6 +195,11 @@ namespace LeagueSandbox.ContentSerializer
                 case "loadpatern":
                     if (len != 2) return -1;
                     return LoadPatern(cmd[1]);
+                case "contentdata":
+                    if (len != 1)
+                        return -1;
+                    prog.ContentDataMake();
+                    break;
                 case "help":
                     Console.WriteLine("Command/Altcommand [argument] [*optional] - descirpiton: ");
                     Console.WriteLine("---------------------------------------------------------");
@@ -232,7 +237,8 @@ namespace LeagueSandbox.ContentSerializer
                     Console.WriteLine("conflict - Prints conflicts");
                     Console.WriteLine("draftmatch - Leaves only hashes that match");
                     Console.WriteLine("unduplicatedraft - Leaves only non duplciate strings");
-                    Console.WriteLine("findfiles - Finds files");
+                    Console.WriteLine("findfiles [section] [name] - Finds files");
+                    Console.WriteLine("contentdata - Converts ConversionMap/[Item|Spell]ConversionMap.json to Content/*");
                     Console.WriteLine("---------------------------------------------------------");
                     break;
                 default:
