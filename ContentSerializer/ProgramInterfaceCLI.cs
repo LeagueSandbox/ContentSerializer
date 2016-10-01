@@ -22,7 +22,7 @@ namespace LeagueSandbox.ContentSerializer
             {"itemgroups", @"Data\/Items\/ItemGroups\/([^\/]+)\.inibin"},
             {"itemmetadata", @"Data[\/\\]Items[\/\\]metadata[\/\\](.*).inibin"},
             {"spells", @"Data(|\/Characters\/([^\/]+)|\/Shared)\/Spells\/([^\/]+)\.inibin"},
-            {"characters", @"Data\/Characters\/([^\/]+)(\/\1\.inibin)"},
+            {"char", @"Data\/Characters\/([^\/]+)(\/\1\.inibin)"},
             {"talents", @"Data\/Talents\/([^\/]+)\.inibin"},
             {"skins", @"Data\/Characters\/([^\/]+)\/Skins\/([^\/]+)\/\2\.inibin"},
             {"all", @"(.*)\.inibin"}
@@ -192,6 +192,14 @@ namespace LeagueSandbox.ContentSerializer
                     if (len != 3) return -1;
                     prog.FindFiles(cmd[1], cmd[2]);
                     break;
+                case "findtype":
+                    if (len != 2) return -1;
+                    prog.FindValueType(Int32.Parse(cmd[1]), false);
+                    break;
+                case "ffindtype":
+                    if (len != 2) return -1;
+                    prog.FindValueType(Int32.Parse(cmd[1]), true);
+                    break;
                 case "loadpatern":
                     if (len != 2) return -1;
                     return LoadPatern(cmd[1]);
@@ -238,6 +246,8 @@ namespace LeagueSandbox.ContentSerializer
                     Console.WriteLine("draftmatch - Leaves only hashes that match");
                     Console.WriteLine("unduplicatedraft - Leaves only non duplciate strings");
                     Console.WriteLine("findfiles [section] [name] - Finds files");
+                    Console.WriteLine("findtype [type] - Finds files and hashes with type");
+                    Console.WriteLine("ffindfiles [type] - Same as above but only look in matching draft hashes");
                     Console.WriteLine("contentdata - Converts ConversionMap/[Item|Spell]ConversionMap.json to Content/*");
                     Console.WriteLine("---------------------------------------------------------");
                     break;

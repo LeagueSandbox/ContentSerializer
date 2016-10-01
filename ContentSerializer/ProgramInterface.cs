@@ -566,6 +566,30 @@ namespace LeagueSandbox.ContentSerializer
             }
         }
 
+        public void FindValueType(int type,bool filter)
+        {
+            foreach(var entry in _files)
+            {
+                var file = _manager.ReadFile(entry.FullName).Uncompress();
+                var inibin = Inibin.DeserializeInibin(file, entry.FullName);
+                foreach (var kvp in inibin.Content)
+                {
+  
+                    if(kvp.Value.Type == type)
+                    {
+                        if (_draft.Hashes.ContainsKey(kvp.Key))
+                        {
+                            var sn = _draft.Hashes[kvp.Key].First();
+                            Console.WriteLine("{0} {2} {3}: {1}", entry.FullName, kvp.Value.Value.ToString(),
+                                sn.Key, sn.Value.First());
+                        }else if (!filter) { 
+                                Console.WriteLine("{0} {1}: {2}", entry.FullName,kvp.Key.ToString(), kvp.Value.Value.ToString());
+                        }
+                   }
+                }
+            }
+        }
+
         public int ComparetToMap(string target, string output)
         {
             if (!File.Exists(target))

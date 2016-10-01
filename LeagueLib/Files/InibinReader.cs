@@ -101,64 +101,63 @@ namespace LeagueLib.Files
                     values[i] = new InibinValue(type, Convert.ToInt32(bits[i]));
                 }
             }
-            else if (type == 6) // 3x byte values - Resource bar RGB color
+            else if (type == 6) // 3x byte values *0.1f
             {
                 byte[] bytes = new byte[3];
 
                 for (int i = 0; i < count; i++)
                 {
                     _reader.BaseStream.Read(bytes, 0, bytes.Length);
-                    values[i] = new InibinValue(type, BitConverter.ToUInt32(new byte[4] { 0, bytes[0], bytes[1], bytes[2] }, 0));
+                    values[i] = new InibinValue(type, string.Format("{0} {1:} {2}", bytes[0]/10.0f, bytes[1]/10.0f, bytes[2]/10.0f));
                 }
             }
-            else if (type == 7) // 3x float values ??????
-            {
-                if (!skipErrors)
-                    throw new Exception("Reading 12 byte values not yet supported");
-
-                //Console.WriteLine("Tried to read 12 byte values");
-                for (int i = 0; i < count; i++)
-                {
-                    // 4 + 4 + 4 = 12
-                    _reader.ReadInt32();
-                    _reader.ReadInt32();
-                    _reader.ReadInt32();
-                    values[i] = new InibinValue(type, "NotYetImplemented");
-                }
-            }
-            else if (type == 8) // 1x short ??????
+            else if (type == 7) // 3x float values(color) - order not confirmed
             {
                 for (int i = 0; i < count; i++)
                 {
-                    values[i] = new InibinValue(type, _reader.ReadUInt16());
+                    float b=_reader.ReadSingle();
+                    float g =_reader.ReadSingle();
+                    float r =_reader.ReadSingle();
+                    values[i] = new InibinValue(type, string.Format("{0} {1} {2}",b,g,r));
+                }
+            }
+            else if (type == 8) // 2x byte
+            {
+                byte[] bytes = new byte[2];
+                for (int i = 0; i < count; i++)
+                {
+                    _reader.BaseStream.Read(bytes, 0, bytes.Length);
+                    values[i] = new InibinValue(type, string.Format("{0} {1}",bytes[0]/10.0f,bytes[1]/10.0f));
                 }
             }
             else if (type == 9) // 2x float ??????
             {
                 for (int i = 0; i < count; i++)
                 {
-                    values[i] = new InibinValue(type, _reader.ReadUInt64());
+                    float a = _reader.ReadSingle();
+                    float b = _reader.ReadSingle();
+                    values[i] = new InibinValue(type, string.Format("{0} {1}",a, b));
                 }
             }
-            else if (type == 10) // 4x bytes * 0.1f ?????
+            else if (type == 10) // 4x bytes * 0.1f
+            {
+                byte[] bytes = new byte[4];
+                for (int i = 0; i < count; i++)
+                {
+                    _reader.BaseStream.Read(bytes, 0, bytes.Length);
+                    values[i] = new InibinValue(type, string.Format("{0} {1} {2} {3}",
+                        bytes[0]/10.0f, bytes[1] / 10.0f, bytes[2] / 10.0f, bytes[3] / 10.0f));
+                }
+            }
+            else if (type == 11) // 4 BGRA color - order not confirmed
             {
                 for (int i = 0; i < count; i++)
                 {
-                    values[i] = new InibinValue(type, _reader.ReadUInt32());
-                }
-            }
-            else if (type == 11) // 4x float ?????
-            {
-                if (!skipErrors)
-                    throw new Exception("Reading 16 byte values not yet supported");
-
-                //Console.WriteLine("Tried to read 16 byte values");
-                for (int i = 0; i < count; i++)
-                {
-                    // 8 + 8 = 16
-                    _reader.ReadUInt64();
-                    _reader.ReadUInt64();
-                    values[i] = new InibinValue(type, "NotYetImplemented");
+                    float b = _reader.ReadSingle();
+                    float g = _reader.ReadSingle();
+                    float r = _reader.ReadSingle();
+                    float a = _reader.ReadSingle();
+                    values[i] = new InibinValue(type, string.Format("{0} {1} {2} {3}", b, g, r, a));
                 }
             }
             else if (type == 12) // Unsigned short - string dictionary offsets
