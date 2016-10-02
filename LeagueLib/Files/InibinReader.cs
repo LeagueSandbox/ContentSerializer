@@ -108,17 +108,18 @@ namespace LeagueLib.Files
                 for (int i = 0; i < count; i++)
                 {
                     _reader.BaseStream.Read(bytes, 0, bytes.Length);
-                    values[i] = new InibinValue(type, string.Format("{0} {1:} {2}", bytes[0]/10.0f, bytes[1]/10.0f, bytes[2]/10.0f));
+                    values[i] = new InibinValue(type, string.Format("{0} {1:} {2}", 
+                        bytes[0]/10.0f, bytes[1]/10.0f, bytes[2]/10.0f));
                 }
             }
             else if (type == 7) // 3x float values(color) - order not confirmed
             {
                 for (int i = 0; i < count; i++)
                 {
-                    float b=_reader.ReadSingle();
-                    float g =_reader.ReadSingle();
-                    float r =_reader.ReadSingle();
-                    values[i] = new InibinValue(type, string.Format("{0} {1} {2}",b,g,r));
+                    var a = _reader.ReadSingle();
+                    var b = _reader.ReadSingle();
+                    var c = _reader.ReadSingle();
+                    values[i] = new InibinValue(type, string.Format("{0} {1} {2}",a,b,c));
                 }
             }
             else if (type == 8) // 2x byte

@@ -553,7 +553,7 @@ namespace LeagueSandbox.ContentSerializer
 
         public void FindFiles(string section, string name)
         {
-            UInt32 hash = HashFunctions.GetInibinHash(section, name);
+            uint hash = HashFunctions.GetInibinHash(section, name);
             foreach(var entry in _files)
             {
                 var file = _manager.ReadFile(entry.FullName).Uncompress();
@@ -574,18 +574,24 @@ namespace LeagueSandbox.ContentSerializer
                 var inibin = Inibin.DeserializeInibin(file, entry.FullName);
                 foreach (var kvp in inibin.Content)
                 {
-  
-                    if(kvp.Value.Type == type)
+
+                    if (kvp.Value.Type != type)
+                        continue;
+                    var fileName = entry.FullName;
+                    var hash = kvp.Key.ToString();
+                    var value = kvp.Value.Value.ToString();
+                    if (_draft.Hashes.ContainsKey(kvp.Key))
                     {
-                        if (_draft.Hashes.ContainsKey(kvp.Key))
-                        {
-                            var sn = _draft.Hashes[kvp.Key].First();
-                            Console.WriteLine("{0} {2} {3}: {1}", entry.FullName, kvp.Value.Value.ToString(),
-                                sn.Key, sn.Value.First());
-                        }else if (!filter) { 
-                                Console.WriteLine("{0} {1}: {2}", entry.FullName,kvp.Key.ToString(), kvp.Value.Value.ToString());
-                        }
-                   }
+                        var section = _draft.Hashes[kvp.Key].First().Key.ToString();
+                        var name = _draft.Hashes[kvp.Key].First().Value.First().ToString();
+                        Console.WriteLine("{0} ({1}) \"{2}\": {3}*{4}",
+                            fileName, hash, value, section,name);
+                    }
+                    else if (!filter)
+                    {
+                        Console.WriteLine("{0} ({1}) \"{2}\"",
+                            fileName, hash, value);
+                    }
                 }
             }
         }
