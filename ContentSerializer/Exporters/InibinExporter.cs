@@ -1,6 +1,7 @@
 ﻿using LeagueLib.Files.Manifest;
 using LeagueLib.Tools;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
 
@@ -8,11 +9,23 @@ namespace LeagueSandbox.ContentSerializer.Exporters
 {
     public class InibinExporter
     {
+        public string OutputDirectory { get; }
         private ArchiveFileManager _manager;
+        private ReleaseManifestFileEntry[] _files;
 
-        public InibinExporter(ArchiveFileManager manager)
+        public InibinExporter(ArchiveFileManager manager, string outputDirectory = "ExportOutput")
         {
             _manager = manager;
+            _files = manager.GetAllFileEntries();
+            OutputDirectory = outputDirectory;
+        }
+
+        public void Export(params ContentConfiguration[] list)
+        {
+            foreach(var configuration in list)
+            {
+                Export(configuration);
+            }
         }
 
         public void Export(ContentConfiguration configuration)
@@ -25,9 +38,8 @@ namespace LeagueSandbox.ContentSerializer.Exporters
         }
 
         private void ExportMatches(ContentConfiguration configuration, Regex pattern)
-        {
-            var files = _manager.GetAllFileEntries();
-            foreach(var file in files)
+        {    
+            foreach(var file in _files)
             {
                 if (!pattern.IsMatch(file.FullName)) continue;
                 ExportFile(configuration, file);
@@ -42,9 +54,9 @@ namespace LeagueSandbox.ContentSerializer.Exporters
 
             // Find save path
             var savePath = string.Format(
-                "ExportOutput/{0}/{1}/{1}.json",
-                configuration.OutputDirectory,
-                item.Id.ToString()
+                "{0}/{1}",
+                OutputDirectory,
+                configuration.GetTargetName(file.FullName)
             );
 
             // Create save directory if one doesn't exist

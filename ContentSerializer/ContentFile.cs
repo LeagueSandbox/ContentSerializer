@@ -74,7 +74,7 @@ namespace LeagueSandbox.ContentSerializer
             result.Id = 0;
             result.Name = "";
             result.ResourcePath = source.FilePath;
-            result.ContentFormatVersion = 2;
+            result.ContentFormatVersion = 4;
             return result;
         }
 
