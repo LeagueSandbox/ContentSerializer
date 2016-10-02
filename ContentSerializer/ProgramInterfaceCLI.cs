@@ -15,18 +15,29 @@ namespace LeagueSandbox.ContentSerializer
     {
         
 
-        private static ProgramInterface prog = new ProgramInterface();
-        private static Dictionary<string, string> paterns = new Dictionary<string, string>
+        private ProgramInterface prog = new ProgramInterface();
+        private Dictionary<string, string> paterns = new Dictionary<string, string>
         {
             {"items", @"Data\/Items\/([^\/]+)\.inibin"},
             {"itemgroups", @"Data\/Items\/ItemGroups\/([^\/]+)\.inibin"},
             {"itemmetadata", @"Data[\/\\]Items[\/\\]metadata[\/\\](.*).inibin"},
             {"spells", @"Data(|\/Characters\/([^\/]+)|\/Shared)\/Spells\/([^\/]+)\.inibin"},
-            {"characters", @"Data\/Characters\/([^\/]+)(\/\1\.inibin)"},
+            {"char", @"Data\/Characters\/([^\/]+)(\/\1\.inibin)"},
             {"talents", @"Data\/Talents\/([^\/]+)\.inibin"},
             {"skins", @"Data\/Characters\/([^\/]+)\/Skins\/([^\/]+)\/\2\.inibin"},
             {"all", @"(.*)\.inibin"}
         };
+
+        public int LoadPatern(string filename)
+        {
+            if (!File.Exists(filename))
+                return -2;
+            var pat = File.ReadAllText(filename);
+            if (!IsValidRegex(pat))
+                return -2;
+            prog.AddPatern(pat);
+            return 0;
+        }
 
         public ProgramInterfaceCLI()
         {
@@ -177,6 +188,26 @@ namespace LeagueSandbox.ContentSerializer
                     if (len != 5) return -1;
                     prog.RangeTest(cmd[1], cmd[2], Int32.Parse(cmd[3]), Int32.Parse(cmd[4]), false);
                     break;
+                case "findfiles":
+                    if (len != 3) return -1;
+                    prog.FindFiles(cmd[1], cmd[2]);
+                    break;
+                case "findtype":
+                    if (len != 2) return -1;
+                    prog.FindValueType(Int32.Parse(cmd[1]), false);
+                    break;
+                case "ffindtype":
+                    if (len != 2) return -1;
+                    prog.FindValueType(Int32.Parse(cmd[1]), true);
+                    break;
+                case "loadpatern":
+                    if (len != 2) return -1;
+                    return LoadPatern(cmd[1]);
+                case "contentdata":
+                    if (len != 1)
+                        return -1;
+                    prog.ContentDataMake();
+                    break;
                 case "help":
                     Console.WriteLine("Command/Altcommand [argument] [*optional] - descirpiton: ");
                     Console.WriteLine("---------------------------------------------------------");
@@ -185,6 +216,7 @@ namespace LeagueSandbox.ContentSerializer
                     Console.WriteLine("exit/quit/close - Exits CLI");
                     Console.WriteLine("count [*all|strings,hashes,draft,files] - Counts stuff (default all)");
                     Console.WriteLine("-------Files:");
+                    Console.WriteLine("loadpatern [file] - Patern from file");
                     Console.WriteLine("addpatern [patern] - Set inibin match patern");
                     Console.WriteLine("addregex [regex] - Set inibin match regex");
                     Console.WriteLine("listfiles - Prints loaded file list");
@@ -213,6 +245,10 @@ namespace LeagueSandbox.ContentSerializer
                     Console.WriteLine("conflict - Prints conflicts");
                     Console.WriteLine("draftmatch - Leaves only hashes that match");
                     Console.WriteLine("unduplicatedraft - Leaves only non duplciate strings");
+                    Console.WriteLine("findfiles [section] [name] - Finds files");
+                    Console.WriteLine("findtype [type] - Finds files and hashes with type");
+                    Console.WriteLine("ffindfiles [type] - Same as above but only look in matching draft hashes");
+                    Console.WriteLine("contentdata - Converts ConversionMap/[Item|Spell]ConversionMap.json to Content/*");
                     Console.WriteLine("---------------------------------------------------------");
                     break;
                 default:

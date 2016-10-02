@@ -12,6 +12,7 @@ using Newtonsoft.Json.Linq;
 using System.Xml.Linq;
 using LeagueLib.Files.Manifest;
 using System.Text.RegularExpressions;
+using LeagueSandbox.ContentSerializer.Exporters;
 
 namespace LeagueSandbox.ContentSerializer
 {
@@ -72,6 +73,7 @@ namespace LeagueSandbox.ContentSerializer
             foreach(var patern in _paterns)
             {
                 Console.WriteLine(c + " - " + patern);
+                c++;
             }
         }
 
@@ -549,6 +551,51 @@ namespace LeagueSandbox.ContentSerializer
             return 0;
         }
 
+        public void FindFiles(string section, string name)
+        {
+            uint hash = HashFunctions.GetInibinHash(section, name);
+            foreach(var entry in _files)
+            {
+                var file = _manager.ReadFile(entry.FullName).Uncompress();
+                var inibin = Inibin.DeserializeInibin(file, entry.FullName);
+                foreach (var kvp in inibin.Content)
+                {
+                    if(kvp.Key == hash)
+                        Console.WriteLine("{0}: {1}", entry.FullName, kvp.Value.Value.ToString());
+                }
+            }
+        }
+
+        public void FindValueType(int type,bool filter)
+        {
+            foreach(var entry in _files)
+            {
+                var file = _manager.ReadFile(entry.FullName).Uncompress();
+                var inibin = Inibin.DeserializeInibin(file, entry.FullName);
+                foreach (var kvp in inibin.Content)
+                {
+
+                    if (kvp.Value.Type != type)
+                        continue;
+                    var fileName = entry.FullName;
+                    var hash = kvp.Key.ToString();
+                    var value = kvp.Value.Value.ToString();
+                    if (_draft.Hashes.ContainsKey(kvp.Key))
+                    {
+                        var section = _draft.Hashes[kvp.Key].First().Key.ToString();
+                        var name = _draft.Hashes[kvp.Key].First().Value.First().ToString();
+                        Console.WriteLine("{0} ({1}) \"{2}\": {3}*{4}",
+                            fileName, hash, value, section,name);
+                    }
+                    else if (!filter)
+                    {
+                        Console.WriteLine("{0} ({1}) \"{2}\"",
+                            fileName, hash, value);
+                    }
+                }
+            }
+        }
+
         public int ComparetToMap(string target, string output)
         {
             if (!File.Exists(target))
@@ -569,6 +616,18 @@ namespace LeagueSandbox.ContentSerializer
             }
             return 0;
 
+        }
+
+        public void ContentDataMake()
+        {
+            var localization = FontConfigFile.Load(_manager, "en_US");
+            var exporter = new InibinExporter(_manager);
+
+            var itemConfiguration = new ContentConfiguration.Item(localization);
+            var spellConfiguration = new ContentConfiguration.Spell(localization);
+
+            exporter.Export(itemConfiguration);
+            exporter.Export(spellConfiguration);
         }
 
 
