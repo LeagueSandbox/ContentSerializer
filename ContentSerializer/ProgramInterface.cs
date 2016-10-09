@@ -23,7 +23,7 @@ namespace LeagueSandbox.ContentSerializer
         private LeagueHashCollection _draft;
         private List<string> _strings;
         private HashSet<uint> _hashes;
-        private List<string> _paterns;
+        private List<string> _patterns;
 
         
         public ProgramInterface()
@@ -33,7 +33,7 @@ namespace LeagueSandbox.ContentSerializer
             _files = new List<ReleaseManifestFileEntry>();
             _draft = new LeagueHashCollection();
             _strings = new List<string>();
-            _paterns = new List<string>();
+            _patterns = new List<string>();
         }
 
 
@@ -42,61 +42,70 @@ namespace LeagueSandbox.ContentSerializer
             _manager = new ArchiveFileManager(path);
         }
 
-        public void AddPatern(string patern)
+        public void AddPattern(string pattern)
         {
-            if (!_paterns.Contains(patern))
+            if (!_patterns.Contains(pattern))
             {
-                _paterns.Add(patern);
+                _patterns.Add(pattern);
             }
+        }
+
+        public void ApplyPatterns()
+        {
             var files = _manager.GetAllFileEntries();
             foreach (var entry in files)
             {
-                if (new Regex(patern, RegexOptions.IgnoreCase).Match(entry.FullName).Success)
+                if(_files.Contains(entry))
+                    continue;
+                foreach(var pattern in _patterns)
                 {
-                    _files.Add(entry);
-                    var file = _manager.ReadFile(entry.FullName).Uncompress();
-                    var inibin = Inibin.DeserializeInibin(file, entry.FullName);
-                    foreach (var kvp in inibin.Content)
+                    if (new Regex(pattern, RegexOptions.IgnoreCase).Match(entry.FullName).Success)
                     {
-                        if (!_hashes.Contains(kvp.Key))
+                        _files.Add(entry);
+                        var file = _manager.ReadFile(entry.FullName).Uncompress();
+                        var inibin = Inibin.DeserializeInibin(file, entry.FullName);
+                        foreach (var kvp in inibin.Content)
                         {
-                            _hashes.Add(kvp.Key);
+                            if (!_hashes.Contains(kvp.Key))
+                            {
+                                _hashes.Add(kvp.Key);
+                            }
                         }
                     }
                 }
             }
         }
         
-        public void ListPaterns()
+        public void ListPatterns()
         {
             int c = 0;
-            foreach(var patern in _paterns)
+            foreach(var pattern in _patterns)
             {
-                Console.WriteLine(c + " - " + patern);
+                Console.WriteLine(c + " - " + pattern);
                 c++;
             }
         }
 
-        public void RemovePatern(int index)
+        public void RemovePattern(int index)
         {
-            if (_paterns.Count> index && index > -1)
+            if (_patterns.Count> index && index > -1)
             {
 
             }
-            string patern = _paterns[index];
-            _paterns.Remove(patern);
+            string pattern = _patterns[index];
+            _patterns.Remove(pattern);
             _files.Clear();
             _hashes.Clear();
-            foreach(string pat in _paterns)
+            foreach(string pat in _patterns)
             {
-                AddPatern(pat);
+                AddPattern(pat);
             }
 
         }
 
         public void ClearFiles()
         {
-            _paterns.Clear();
+            _patterns.Clear();
             _files.Clear();
             _hashes.Clear();
         }
@@ -199,6 +208,7 @@ namespace LeagueSandbox.ContentSerializer
 
             foreach (var file in _files)
             {
+                
                 var inibin = _manager.ReadInibin(file.FullName);
                 var item = ContentFile.FromInibin(inibin, converter);
                 var orgPath = Path.GetDirectoryName(file.FullName);
@@ -618,16 +628,54 @@ namespace LeagueSandbox.ContentSerializer
 
         }
 
-        public void ContentDataMake()
+        public int ImportPatterns(string file)
         {
-            var localization = FontConfigFile.Load(_manager, "en_US");
-            var exporter = new InibinExporter(_manager);
+            try
+            {
+                var data = File.ReadAllText(file);
+                var patterns = JsonConvert.DeserializeObject<List<string>>(data);
+                foreach(var pattern in patterns)
+                {
+                    //Test if valid!
+                    new Regex(pattern);
+                    AddPattern(pattern);
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
+            return 0;
+        }
 
-            var itemConfiguration = new ContentConfiguration.Item(localization);
-            var spellConfiguration = new ContentConfiguration.Spell(localization);
+        public int ExportPatterns(string file)
+        {
+            try
+            {
+                var patterns = JsonConvert.SerializeObject(_patterns, Formatting.Indented);
+                File.WriteAllText(file, patterns);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
+            return 0;
+        }
 
-            exporter.Export(itemConfiguration);
-            exporter.Export(spellConfiguration);
+        public int ContentDataMake(string listFile,string outpudir="ExportOutput",
+            string mapDir="ConversionMaps", string patternDir="ContentPatterns")
+        {
+            try
+            {
+                var localization = FontConfigFile.Load(_manager, "en_US");
+                var exporter = new InibinExporter(_manager, outpudir);
+                exporter.Export(ContentConfiguration.LoadList(localization, mapDir, patternDir, listFile));
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+            return 0;
         }
 
 

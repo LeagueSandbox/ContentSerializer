@@ -1,0 +1,63 @@
+{
+  "ContextualAction": {
+    "RuleConfigFile": 2120068477
+  },
+  "DefaultAnimations": {
+    "Animation1": 3672752487,
+    "NumberOfAnimations": 2153542505
+  },
+  "HealthBar": {
+    "ParallaxOffset": 33998141,
+    "XOffset": 168370392,
+    "YOffset": 3761508185
+  },
+  "IdleParticles": {
+    "NumberOfParticles": 2872668924,
+    "Particle1": 78882426,
+    "Particle10": 3467638838,
+    "Particle11": 3467638839,
+    "Particle12": 3467638840,
+    "Particle13": 3467638841,
+    "Particle2": 78882427,
+    "Particle3": 78882428,
+    "Particle4": 78882429,
+    "Particle5": 78882430,
+    "Particle6": 78882431,
+    "Particle7": 78882432,
+    "Particle8": 78882433,
+    "Particle9": 78882434
+  },
+  "Info": {
+    "IconCircle": 3392217477,
+    "IconSquare": 3606610482
+  },
+  "MeshSkin": {
+    "Animations": 4263852911,
+    "AttributeFlags": 535817099,
+    "CastShadows": 757333300,
+    "ChampionSkinID": 1091449537,
+    "ChampionSkinName": 2142495409,
+    "EmissiveTexture": 1831801988,
+    "ExtraCharacterPreloads": 3726555107,
+    "GlossTexture": 3060448337,
+    "GlowFactor": 4289923804,
+    "MaterialOverride0Submesh": 964876944,
+    "MaterialOverride0Texture": 3502738494,
+    "MaterialOverridePriority": 2068574711,
+    "OverrideBoundingBox": 1786440603,
+    "ParallaxOffset": 2058916490,
+    "ReflectionFresnel": 874689392,
+    "ReflectionFresnelBlue": 3577271338,
+    "ReflectionFresnelGreen": 2953575987,
+    "ReflectionFresnelRed": 1557586241,
+    "ReflectionMap": 3732685137,
+    "ReflectionOpacityDirect": 3180921225,
+    "ReflectionOpacityGlancing": 2478112913,
+    "SelfIllumination": 3713961755,
+    "SimpleSkin": 769344815,
+    "Skeleton": 1895303501,
+    "SkinScale": 4100866733,
+    "Texture": 2640183547,
+    "YOffset": 1458125644
+  }
+}

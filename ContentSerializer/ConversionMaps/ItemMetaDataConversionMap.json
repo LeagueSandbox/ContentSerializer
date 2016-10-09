@@ -1,0 +1,12 @@
+{
+  "Attack": {
+    "AttackSpeed": 1747541373,
+    "CriticalStrike": 3245242035,
+    "Damage": 1930097041,
+    "LifeSteal": 2202955281
+  },
+  "Movement": {
+    "Boots": 3826194022,
+    "NonbootsMovement": 3851276830
+  }
+}

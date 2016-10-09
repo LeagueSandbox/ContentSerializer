@@ -33,15 +33,6 @@ namespace LeagueSandbox.ContentSerializer
             var radsPath = GetRadsPath(arguments);
             var manager = new ArchiveFileManager(radsPath);
 
-            var localization = FontConfigFile.Load(manager, "en_US");
-            var exporter = new InibinExporter(manager);
-
-            var itemConfiguration = new ContentConfiguration.Item(localization);
-            var spellConfiguration = new ContentConfiguration.Spell(localization);
-
-            exporter.Export(itemConfiguration);
-            exporter.Export(spellConfiguration);
-
             timer.Stop();
             Console.WriteLine("Elapsed time: {0} ms", timer.ElapsedMilliseconds);
             Console.ReadKey();
