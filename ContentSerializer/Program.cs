@@ -24,6 +24,10 @@ namespace LeagueSandbox.ContentSerializer
 
         static void Main(string[] args)
         {
+            var manager = new ArchiveFileManager(@"C:\LOL420\RADS\projects\lol_game_client");
+            //var files = manager.GetMatchFileEntries("LEVELS/map11/(.*)");
+            NGridReader ngridReader = new NGridReader(manager.ReadFile("LEVELS/map11/AIPath.aimesh_ngrid").Uncompress());
+
             new ProgramInterfaceCLI().ConsoleInterface();
             return;
             var timer = new Stopwatch();
@@ -31,7 +35,7 @@ namespace LeagueSandbox.ContentSerializer
 
             var arguments = LaunchArguments.Parse(args);
             var radsPath = GetRadsPath(arguments);
-            var manager = new ArchiveFileManager(radsPath);
+            //var manager = new ArchiveFileManager(radsPath);
 
             timer.Stop();
             Console.WriteLine("Elapsed time: {0} ms", timer.ElapsedMilliseconds);
