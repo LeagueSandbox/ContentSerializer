@@ -24,14 +24,31 @@ namespace LeagueSandbox.ContentSerializer
 
         static void Main(string[] args)
         {
+            //var radsPath = GetRadsPath();
+            var manager = new ArchiveFileManager(@"C:\LOL420\RADS\projects\lol_game_client");
+            var meshes = manager.GetMatchFileEntries(@"Levels/Map([0-9]+)/Scene/(.*)\.sc[bo]");
+            foreach (var staticMesh in meshes)
+            {
+                if (Path.GetExtension(staticMesh.FullName) == ".scb" || Path.GetExtension(staticMesh.FullName) == ".SCB")
+                {
+                    ScbReader reader = new ScbReader(manager.ReadFile(staticMesh.FullName).Uncompress());
+                    StaticMesh mesh = new StaticMesh(reader);
+                    mesh.Serialize(Path.ChangeExtension(staticMesh.FullName, ".json"));
+                }
+                else if (Path.GetExtension(staticMesh.FullName) == ".kek")
+                {
+                    ScoReader reader = new ScoReader(manager.ReadFile(staticMesh.FullName).Uncompress());
+                    StaticMesh mesh = new StaticMesh(reader);
+                    mesh.Serialize(Path.ChangeExtension(staticMesh.FullName, ".json"));
+                }
+            }
+
             new ProgramInterfaceCLI().ConsoleInterface();
             return;
             var timer = new Stopwatch();
             timer.Start();
 
             var arguments = LaunchArguments.Parse(args);
-            var radsPath = GetRadsPath(arguments);
-            var manager = new ArchiveFileManager(radsPath);
 
             timer.Stop();
             Console.WriteLine("Elapsed time: {0} ms", timer.ElapsedMilliseconds);
