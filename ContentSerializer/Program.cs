@@ -22,27 +22,26 @@ namespace LeagueSandbox.ContentSerializer
             throw new Exception("No RADS path defined");
         }
 
-        static void Main(string[] args)
+        public static void SerializeTo<T>(T what, string output)
         {
-            //var radsPath = GetRadsPath();
-            var manager = new ArchiveFileManager(@"C:\LOL420\RADS\projects\lol_game_client");
-            var meshes = manager.GetMatchFileEntries(@"Levels/Map([0-9]+)/Scene/(.*)\.sc[bo]");
-            foreach (var staticMesh in meshes)
+            JsonSerializer serializer = new JsonSerializer();
+            serializer.Formatting = Formatting.Indented;
+            if (!File.Exists(output))
             {
-                if (Path.GetExtension(staticMesh.FullName) == ".scb" || Path.GetExtension(staticMesh.FullName) == ".SCB")
+                Directory.CreateDirectory(Path.GetDirectoryName(output));
+                using (File.Create(output)) { }
+            }
+            using (StreamWriter sw = new StreamWriter(output))
+            {
+                using (JsonWriter jw = new JsonTextWriter(sw))
                 {
-                    ScbReader reader = new ScbReader(manager.ReadFile(staticMesh.FullName).Uncompress());
-                    StaticMesh mesh = new StaticMesh(reader);
-                    mesh.Serialize(Path.ChangeExtension(staticMesh.FullName, ".json"));
-                }
-                else if (Path.GetExtension(staticMesh.FullName) == ".kek")
-                {
-                    ScoReader reader = new ScoReader(manager.ReadFile(staticMesh.FullName).Uncompress());
-                    StaticMesh mesh = new StaticMesh(reader);
-                    mesh.Serialize(Path.ChangeExtension(staticMesh.FullName, ".json"));
+                    serializer.Serialize(jw, what);
                 }
             }
+        }
 
+        static void Main(string[] args)
+        {
             new ProgramInterfaceCLI().ConsoleInterface();
             return;
             var timer = new Stopwatch();

@@ -65,8 +65,8 @@
     <Compile Include="Files\Manifest\ReleaseManifest.cs" />
     <Compile Include="Files\Manifest\ReleaseManifestReader.cs" />
     <Compile Include="Files\Manifest\ReleaseManifestWriter.cs" />
-    <Compile Include="Files\ScbReader.cs" />
-    <Compile Include="Files\ScoReader.cs" />
+    <Compile Include="Files\ScbFile.cs" />
+    <Compile Include="Files\ScoFile.cs" />
     <Compile Include="Files\StaticMesh.cs" />
     <Compile Include="Hashes\HashFunctions.cs" />
     <Compile Include="Tools\ArchiveFileManager.cs" />
