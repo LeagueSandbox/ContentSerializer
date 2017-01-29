@@ -65,6 +65,7 @@
     <Compile Include="Files\Manifest\ReleaseManifest.cs" />
     <Compile Include="Files\Manifest\ReleaseManifestReader.cs" />
     <Compile Include="Files\Manifest\ReleaseManifestWriter.cs" />
+    <Compile Include="Files\RoomDscFile.cs" />
     <Compile Include="Files\ScbFile.cs" />
     <Compile Include="Files\ScoFile.cs" />
     <Compile Include="Files\StaticMesh.cs" />
