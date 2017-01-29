@@ -35,8 +35,12 @@
       <HintPath>..\packages\MarkerMetro.Unity.Ionic.Zlib.2.0.0.14\lib\net35\Ionic.ZLib.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Numerics" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -61,6 +65,10 @@
     <Compile Include="Files\Manifest\ReleaseManifest.cs" />
     <Compile Include="Files\Manifest\ReleaseManifestReader.cs" />
     <Compile Include="Files\Manifest\ReleaseManifestWriter.cs" />
+    <Compile Include="Files\RoomDscFile.cs" />
+    <Compile Include="Files\ScbFile.cs" />
+    <Compile Include="Files\ScoFile.cs" />
+    <Compile Include="Files\StaticMesh.cs" />
     <Compile Include="Hashes\HashFunctions.cs" />
     <Compile Include="Tools\ArchiveFileManager.cs" />
     <Compile Include="Tools\BackupManager.cs" />
