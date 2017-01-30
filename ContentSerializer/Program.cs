@@ -25,8 +25,9 @@ namespace LeagueSandbox.ContentSerializer
         static void Main(string[] args)
         {
             var manager = new ArchiveFileManager(@"C:\LOL420\RADS\projects\lol_game_client");
-            //var files = manager.GetMatchFileEntries("LEVELS/map11/(.*)");
             NGridReader ngridReader = new NGridReader(manager.ReadFile("LEVELS/map11/AIPath.aimesh_ngrid").Uncompress());
+            ngridReader.ToImage("ngrid.tga");
+            ngridReader.ToNavGrid().Serialize("LEVELS/map11/AIPath.json");
 
             new ProgramInterfaceCLI().ConsoleInterface();
             return;

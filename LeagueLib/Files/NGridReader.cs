@@ -11,7 +11,7 @@ namespace LeagueLib.Files
     public class NGridReader
     {
         public Header header;
-        public List<Cell> Cells = new List<Cell>();
+        public List<NavGrid.Cell> Cells = new List<NavGrid.Cell>();
         public NGridReader(byte[] data)
         {
             using (MemoryStream ms = new MemoryStream(data))
@@ -46,24 +46,8 @@ namespace LeagueLib.Files
                 YCellCount = br.ReadUInt32();
             }
         }
-        public class Cell
+        public class Cell : NavGrid.Cell
         {
-            public float CenterHeight;
-            public UInt32 SessionID;
-            public float ArrivalCost;
-            public UInt32 IsOpen;
-            public float Heuristic;
-            public UInt32 ActorList;
-            public UInt16 mX;
-            public UInt16 mY;
-            public float AdditionalCost;
-            public float HintAsGoodCell;
-            public UInt16 AdditionalCostRefCount;
-            public UInt32 GoodCellSessionID;
-            public float RefHintWeight;
-            public UInt16 ArrivalDirection;
-            public UInt16 Flag;
-            public UInt16[] RefHintNode = new UInt16[2];
             public Cell(BinaryReader br)
             {
                 CenterHeight = br.ReadSingle();
@@ -87,17 +71,28 @@ namespace LeagueLib.Files
                 }
             }
         }
+        public NavGrid ToNavGrid()
+        {
+            return new NavGrid(Cells, header.MinGridPosition, header.MaxGridPosition, header.XCellCount, header.YCellCount);
+        }
         public void ToImage(string fileLocation)
         {
-            float LowestHeight = 0f;
-            float HighestHeight = 0f;
+            float HighestHeight = 0;
+            float LowestHeight = 0;
             UInt32 Width = header.XCellCount;
             UInt32 Heigth = header.YCellCount;
-            byte[] t_Pixels = new byte[Cells.Count * 4];
+            byte[] Pixels = new byte[Cells.Count * 4];
 
             foreach(Cell cell in Cells)
             {
-
+                if(HighestHeight < cell.CenterHeight)
+                {
+                    HighestHeight = cell.CenterHeight;
+                }
+                if(LowestHeight > cell.CenterHeight)
+                {
+                    LowestHeight = cell.CenterHeight;
+                }
             }
 
             UInt32 Offset = 0;
@@ -111,15 +106,15 @@ namespace LeagueLib.Files
                 Green = 0xFF;
                 Blue = 0x0;
 
-                t_Pixels[Offset] = Blue; // r
-                t_Pixels[Offset + 1] = Green; // g
-                t_Pixels[Offset + 2] = Red; // b
-                t_Pixels[Offset + 3] = 255; // a
+                Pixels[Offset] = Blue;
+                Pixels[Offset + 1] = Green;
+                Pixels[Offset + 2] = Red;
+                Pixels[Offset + 3] = 255;
 
                 Offset += 4;
             }
  
-            Byte[] t_Header = new Byte[]
+            Byte[] Header = new Byte[]
             {
                 0, // ID length
                 0, // no color map
@@ -137,8 +132,8 @@ namespace LeagueLib.Files
 
             using (BinaryWriter bw = new BinaryWriter(File.Open(fileLocation + ".tga", FileMode.Create)))
             {
-                bw.Write(t_Header);
-                bw.Write(t_Pixels);
+                bw.Write(Header);
+                bw.Write(Pixels);
             }
         }
     }
