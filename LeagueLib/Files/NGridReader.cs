@@ -12,7 +12,6 @@ namespace LeagueLib.Files
     {
         public Header header;
         public List<Cell> Cells = new List<Cell>();
-        public Footer footer;
         public NGridReader(byte[] data)
         {
             using (MemoryStream ms = new MemoryStream(data))
@@ -24,7 +23,6 @@ namespace LeagueLib.Files
                     {
                         Cells.Add(new Cell(br));
                     }
-                    footer = new Footer(br);
                 }
             }
         }
@@ -64,7 +62,7 @@ namespace LeagueLib.Files
             public UInt32 GoodCellSessionID;
             public float RefHintWeight;
             public UInt16 ArrivalDirection;
-            public UInt16 Flags;
+            public UInt16 Flag;
             public UInt16[] RefHintNode = new UInt16[2];
             public Cell(BinaryReader br)
             {
@@ -82,27 +80,65 @@ namespace LeagueLib.Files
                 GoodCellSessionID = br.ReadUInt32();
                 RefHintWeight = br.ReadSingle();
                 ArrivalDirection = br.ReadUInt16();
-                Flags = br.ReadUInt16();
+                Flag = br.ReadUInt16();
                 for(int i = 0; i < 2; i++)
                 {
                     RefHintNode[i] = br.ReadUInt16();
                 }
             }
         }
-        public class Footer
+        public void ToImage(string fileLocation)
         {
-            public UInt32 XSampledHeightCount;
-            public UInt32 YSampledHeightCount;
-            public float XDirection;
-            public float YDirection;
-            public float Unk;
-            public Footer(BinaryReader br)
+            float LowestHeight = 0f;
+            float HighestHeight = 0f;
+            UInt32 Width = header.XCellCount;
+            UInt32 Heigth = header.YCellCount;
+            byte[] t_Pixels = new byte[Cells.Count * 4];
+
+            foreach(Cell cell in Cells)
             {
-                XSampledHeightCount = br.ReadUInt32();
-                YSampledHeightCount = br.ReadUInt32();
-                XDirection = br.ReadSingle();
-                YDirection = br.ReadSingle();
-                Unk = br.ReadSingle();
+
+            }
+
+            UInt32 Offset = 0;
+            for (int i = 0; i < Cells.Count; i++)
+            {
+                Byte Red;
+                Byte Green;
+                Byte Blue;
+
+                Red = (Byte)(((Cells[i].CenterHeight - LowestHeight) / (HighestHeight - LowestHeight)) * 255.0f);
+                Green = 0xFF;
+                Blue = 0x0;
+
+                t_Pixels[Offset] = Blue; // r
+                t_Pixels[Offset + 1] = Green; // g
+                t_Pixels[Offset + 2] = Red; // b
+                t_Pixels[Offset + 3] = 255; // a
+
+                Offset += 4;
+            }
+ 
+            Byte[] t_Header = new Byte[]
+            {
+                0, // ID length
+                0, // no color map
+                2, // uncompressed, true color
+                0, 0, 0, 0,
+                0,
+                0, 0, 0, 0, // x and y origin
+                (Byte)(Width & 0x00FF),
+                (Byte)((Width & 0xFF00) >> 8),
+                (Byte)(Heigth & 0x00FF),
+                (Byte)((Heigth & 0xFF00) >> 8),
+                32, // 32 bit bitmap
+                0
+            };
+
+            using (BinaryWriter bw = new BinaryWriter(File.Open(fileLocation + ".tga", FileMode.Create)))
+            {
+                bw.Write(t_Header);
+                bw.Write(t_Pixels);
             }
         }
     }
