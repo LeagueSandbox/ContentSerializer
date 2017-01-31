@@ -22,21 +22,32 @@ namespace LeagueSandbox.ContentSerializer
             throw new Exception("No RADS path defined");
         }
 
+        public static void SerializeTo<T>(T what, string output)
+        {
+            JsonSerializer serializer = new JsonSerializer();
+            serializer.Formatting = Formatting.Indented;
+            if (!File.Exists(output))
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(output));
+                using (File.Create(output)) { }
+            }
+            using (StreamWriter sw = new StreamWriter(output))
+            {
+                using (JsonWriter jw = new JsonTextWriter(sw))
+                {
+                    serializer.Serialize(jw, what);
+                }
+            }
+        }
+
         static void Main(string[] args)
         {
-            var manager = new ArchiveFileManager(@"C:\LOL420\RADS\projects\lol_game_client");
-            NGridReader ngridReader = new NGridReader(manager.ReadFile("LEVELS/map11/AIPath.aimesh_ngrid").Uncompress());
-            ngridReader.ToImage("ngrid.tga");
-            ngridReader.ToNavGrid().Serialize("LEVELS/map11/AIPath.json");
-
             new ProgramInterfaceCLI().ConsoleInterface();
             return;
             var timer = new Stopwatch();
             timer.Start();
 
             var arguments = LaunchArguments.Parse(args);
-            var radsPath = GetRadsPath(arguments);
-            //var manager = new ArchiveFileManager(radsPath);
 
             timer.Stop();
             Console.WriteLine("Elapsed time: {0} ms", timer.ElapsedMilliseconds);

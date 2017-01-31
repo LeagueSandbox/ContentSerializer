@@ -65,7 +65,7 @@
     <Compile Include="Files\Manifest\ReleaseManifest.cs" />
     <Compile Include="Files\Manifest\ReleaseManifestReader.cs" />
     <Compile Include="Files\Manifest\ReleaseManifestWriter.cs" />
-    <Compile Include="Files\NavGrid.cs" />
+<Compile Include="Files\NavGrid.cs" />
     <Compile Include="Files\NGridReader.cs" />
     <Compile Include="Hashes\HashFunctions.cs" />
     <Compile Include="Tools\ArchiveFileManager.cs" />
