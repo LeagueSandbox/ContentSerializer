@@ -27,7 +27,7 @@ namespace LeagueLib.Files
         public class Cell
         {
             public float CenterHeight;
-            public UInt32 SessionID;
+            public Int32 SessionID;
             public float ArrivalCost;
             public UInt32 IsOpen;
             public float Heuristic;
@@ -36,12 +36,25 @@ namespace LeagueLib.Files
             public UInt16 mY;
             public float AdditionalCost;
             public float HintAsGoodCell;
-            public UInt16 AdditionalCostRefCount;
-            public UInt32 GoodCellSessionID;
+            public Int32 AdditionalCostRefCount;
+            public Int32 GoodCellSessionID;
             public float RefHintWeight;
             public UInt16 ArrivalDirection;
-            public UInt16 Flag;
+            public CellFlag Flag;
             public UInt16[] RefHintNode = new UInt16[2];
+        }
+        public enum CellFlag : UInt16
+        {
+            CELL_HAS_GRASS = 0x1,
+            CELL_NOT_PASSABLE = 0x2,
+            CELL_BUSY = 0x4,
+            CELL_TARGETTED = 0x8,
+            CELL_MARKED = 0x10,
+            CELL_PATHED_ON = 0x20,
+            CELL_SEE_THROUGH = 0x40,
+            CELL_OTHERDIRECTION_END_TO_START = 0x80,
+            CELL_HAS_ANTI_BRUSH = 0x100,
+            CELL_HAS_TRANSPARENTTERRAIN = 0x42,
         }
         public void Serialize(string fileLocation)
         {

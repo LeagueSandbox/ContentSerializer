@@ -10,8 +10,10 @@ namespace LeagueLib.Files
 {
     public class NGridReader
     {
+        public uint grassCount = 0;
         public Header header;
         public List<NavGrid.Cell> Cells = new List<NavGrid.Cell>();
+        public List<byte> Flags = new List<byte>();
         public NGridReader(byte[] data)
         {
             using (MemoryStream ms = new MemoryStream(data))
@@ -22,6 +24,11 @@ namespace LeagueLib.Files
                     for (int i = 0; i < header.XCellCount * header.YCellCount; i++)
                     {
                         Cells.Add(new Cell(br));
+                        if (Cells[i].Flag == NavGrid.CellFlag.CELL_HAS_GRASS) grassCount++;
+                    }
+                    for (int i = 0; i < header.XCellCount * header.YCellCount; i++)
+                    {
+                        Flags.Add(br.ReadByte());
                     }
                 }
             }
@@ -38,7 +45,8 @@ namespace LeagueLib.Files
             public Header(BinaryReader br)
             {
                 Major = br.ReadByte();
-                Minor = br.ReadUInt16();
+                if(Major != 2)
+                    Minor = br.ReadUInt16();
                 MinGridPosition = new Vector3(br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
                 MaxGridPosition = new Vector3(br.ReadSingle(), br.ReadSingle(), br.ReadSingle());
                 CellSize = br.ReadSingle();
@@ -51,7 +59,7 @@ namespace LeagueLib.Files
             public Cell(BinaryReader br)
             {
                 CenterHeight = br.ReadSingle();
-                SessionID = br.ReadUInt32();
+                SessionID = br.ReadInt32();
                 ArrivalCost = br.ReadSingle();
                 IsOpen = br.ReadUInt32();
                 Heuristic = br.ReadSingle();
@@ -60,22 +68,23 @@ namespace LeagueLib.Files
                 mY = br.ReadUInt16();
                 AdditionalCost = br.ReadSingle();
                 HintAsGoodCell = br.ReadSingle();
-                AdditionalCostRefCount = br.ReadUInt16();
-                GoodCellSessionID = br.ReadUInt32();
+                AdditionalCostRefCount = br.ReadInt32();
+                GoodCellSessionID = br.ReadInt32();
                 RefHintWeight = br.ReadSingle();
-                ArrivalDirection = br.ReadUInt16();
-                Flag = br.ReadUInt16();
+                ArrivalDirection = br.ReadByte();
+                Flag = (NavGrid.CellFlag)br.ReadByte();
                 for(int i = 0; i < 2; i++)
                 {
                     RefHintNode[i] = br.ReadUInt16();
                 }
+                br.ReadUInt16();
             }
         }
         public NavGrid ToNavGrid()
         {
             return new NavGrid(Cells, header.MinGridPosition, header.MaxGridPosition, header.XCellCount, header.YCellCount);
         }
-        public void ToImage(string fileLocation)
+        public void ToImage(string fileLocation, bool useFlags)
         {
             float HighestHeight = 0;
             float LowestHeight = 0;
@@ -98,13 +107,26 @@ namespace LeagueLib.Files
             UInt32 Offset = 0;
             for (int i = 0; i < Cells.Count; i++)
             {
-                Byte Red;
-                Byte Green;
-                Byte Blue;
+                Byte Red = 0;
+                Byte Green = 0;
+                Byte Blue = 0;
 
-                Red = (Byte)(((Cells[i].CenterHeight - LowestHeight) / (HighestHeight - LowestHeight)) * 255.0f);
-                Green = 0xFF;
-                Blue = 0x0;
+                if(useFlags)
+                {
+                    if (Flags[i] == (byte)NavGrid.CellFlag.CELL_HAS_GRASS)
+                    {
+                        Green = 0xFF;
+                    }
+                    else if (Flags[i] == (byte)NavGrid.CellFlag.CELL_NOT_PASSABLE)
+                    {
+                        Red = 0xFF;
+                        Blue = 0xFF;
+                    }
+                }
+                else
+                {
+                    Red = (Byte)(((Cells[i].CenterHeight - LowestHeight) / (HighestHeight - LowestHeight)) * 255.0f);
+                }
 
                 Pixels[Offset] = Blue;
                 Pixels[Offset + 1] = Green;
