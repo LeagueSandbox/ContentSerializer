@@ -6,18 +6,6 @@
 		"OutputPattern":"Items/$2/$2.json"
 	},
 	{
-		"ConversionMap":"ItemGroupConversionMap.json",
-		"Pattern":"ItemGroups.json",
-		"InputPattern":"(.*)/([^/]+)\\.inibin",
-		"OutputPattern":"ItemGroups/$2.json"
-	},
-	{
-		"ConversionMap":"ItemMetaDataConversionMap.json",
-		"Pattern":"ItemMetaData.json",
-		"InputPattern":"(.*)/([^/]+)\\.inibin",
-		"OutputPattern":"ItemMetaData/$2.json"
-	},
-	{
 		"ConversionMap":"SpellConversionMap.json",
 		"Pattern":"Spells.json",
 		"InputPattern":"(.*)/([^/]+)\\.inibin",
@@ -33,12 +21,24 @@
 		"ConversionMap":"CharacterConversionMap.json",
 		"Pattern":"Characters.json",
 		"InputPattern":"(.*)/([^/]+)\\.inibin",
-		"OutputPattern":"Characters/$2/$2.json"
+		"OutputPattern":"Stats/$2/$2.json"
 	},
 	{
 		"ConversionMap":"SkinConversionMap.json",
 		"Pattern":"Skins.json",
-		"InputPattern":"^(.*)/([^/]+)/Skins/([^/]+)/([^/]+)\\.inibin\\z",
-		"OutputPattern":"Characters/$2/Skins/$3/$3.json"
+		"InputPattern":"^(.*)/([^/]+)/Skins/([^/]+)/([^/]+)\\.inibin\\Z",
+		"OutputPattern":"Stats/$2/Skins/$3/$3.json"
+	},
+	{
+		"ConversionMap":"LevelsConversionMap.json",
+		"Pattern":"Levels.json",
+		"InputPattern":"^LEVELS/([^/]+)/([^/]+)\\.inibin\\Z",
+		"OutputPattern":"Maps/$1/$2.json"
+	},
+	{
+		"ConversionMap":"GlobalsConversionMap.json",
+		"Pattern":"GlobalsUsefull.json",
+		"InputPattern":"^DATA/Globals/([^/]+)\\.inibin\\Z",
+		"OutputPattern":"Globals/$1.json"
 	}
 ]
