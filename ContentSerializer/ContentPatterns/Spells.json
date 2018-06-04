@@ -1,5 +1,5 @@
 [
-	"^DATA/Spells/[^/]+\\.inibin\\z",
-	"^DATA/Shared/Spells/[^/]+\\.inibin\\z",
-	"^DATA/Characters/.*/Spells/[^/]+\\.inibin\\z"
+	"^DATA/Spells/[^/]+\\.inibin\\Z",
+	"^DATA/Shared/Spells/[^/]+\\.inibin\\Z",
+	"^DATA/Characters/.*/Spells/[^/]+\\.inibin\\Z"
 ]

@@ -1,3 +1,3 @@
 [
-	"^DATA/Items/ItemGroups/[^/]+\\.inibin\\z"
+	"^DATA/Items/ItemGroups/[^/]+\\.inibin\\Z"
 ]
