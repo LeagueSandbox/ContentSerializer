@@ -128,7 +128,8 @@ namespace LeagueSandbox.ContentSerializer
                 var section = entry.Key.Section;
                 var name = entry.Key.Name;
                 var value = entry.Value;
-                if (!result.ContainsKey(section)) result[section] = new Dictionary<string, object>();
+                if (!result.ContainsKey(section))
+                    result[section] = new Dictionary<string, object>();
                 result[section].Add(name, value.Value);
             }
             return result;

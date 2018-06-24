@@ -15,12 +15,12 @@ namespace LeagueSandbox.ContentSerializer.Exporters
     public class LuaobjExporter : IExporter
     {
         public ArchiveFileManager Manager { get; set; }
-        public LuaDumper Dumper { get; set; }
 
         public void Export(ReleaseManifestFileEntry file, string output)
         {
+           
             var data = Manager.ReadFile(file.FullName).Uncompress();
-            var dump = Dumper.LoadData(data);
+            var dump = LuaDumper.Dump(data);
 
             var json = JObject.FromObject(dump);
             //Program.SanitizeAndSort(json);
@@ -39,7 +39,6 @@ namespace LeagueSandbox.ContentSerializer.Exporters
         public void Load(ArchiveFileManager manager, FontConfigFile localization, JObject conf, string confPath)
         {
             Manager = manager;
-            Dumper = new LuaDumper();
         }
     }
 }

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace LeagueLib.Files
@@ -21,52 +22,16 @@ namespace LeagueLib.Files
             return Read(File.ReadAllBytes(filePath));
         }
 
+        private static readonly Regex RE_TR = new Regex(@"tr\s*""(.*)""\s*=\s*""(.*)""");
         public static FontConfigFile Read(byte[] data)
         {
-            var result = new FontConfigFile();
-
-            var stream = new StreamReader(new MemoryStream(data));
-            var line = stream.ReadLine();
-            while (!line.StartsWith("tr") && !stream.EndOfStream)
+            var dict = new Dictionary<string, string>();
+            string realData = Encoding.UTF8.GetString(data);
+            foreach(Match match in RE_TR.Matches(realData))
             {
-                result._header.Add(line);
-                line = stream.ReadLine();
+                dict[match.Groups[1].Value] = match.Groups[2].Value;
             }
-            while (line.StartsWith("tr") && !stream.EndOfStream)
-            {
-                var entry = ParseLine(line);
-                result.Content.Add(entry.Key, entry.Value);
-                line = stream.ReadLine();
-            }
-
-            return result;
-        }
-
-        private static KeyValuePair<string, string> ParseLine(string line)
-        {
-            var key = GetQuotedContentAt(line, 0);
-            var value = GetQuotedContentAt(line, 1);
-            return new KeyValuePair<string, string>(key, value);
-        }
-
-        private static string GetQuotedContentAt(string container, int index)
-        {
-            index *= 2;
-            var start = IndexOfAt(container, '"', index) + 1;
-            var end = IndexOfAt(container, '"', index + 1);
-            return container.Substring(start, end - start);
-        }
-
-        private static int IndexOfAt(string source, char character, int index)
-        {
-            var found = 0;
-            for (var i = 0; i < source.Length; i++)
-            {
-                if (source[i] != character) continue;
-                if (found == index) return i;
-                found++;
-            }
-            throw new Exception("No such index");
+            return new FontConfigFile(dict);
         }
     }
 }

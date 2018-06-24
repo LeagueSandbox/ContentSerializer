@@ -8,27 +8,13 @@ using System.Threading.Tasks;
 
 namespace LeagueSandbox.ContentSerializer
 {
-    public class LuaDumper
+    public static class LuaDumper
     {
-        private Lua _lua;
-        private LuaFunction _getstuff;
-        private LuaFunction _cleartemp;
-        private LuaFunction _gettemp;
 
-        public LuaDumper()
+        public static Dictionary<string, object> Dump(byte[] data, string name = "")
         {
-            _lua = new Lua();
-            _lua.DoString(@"
-                _tmp = {}
-                function CreateChildTurret(name, skin, team, index, lane)
-                    _tmp[#_tmp + 1] = {
-                        ['Name'] = name,
-                        ['Skin'] = skin,
-                        ['Team'] = team,
-                        ['Index'] = index,
-                        ['Lane'] = lane,
-                    }
-                end
+            var lua = new NLua.Lua();
+            lua.DoString(@"
                 function Make3DPoint(x,y,z)
                     return { 
                         ['x'] = x, 
@@ -49,39 +35,25 @@ namespace LeagueSandbox.ContentSerializer
                     })
                     setfenv(func, env)
                     local status, err = pcall(func)
-                    local CreateLevelProps = env['CreateLevelProps']
-                    if CreateLevelProps ~= 'CreateLevelProps' then
-                        _tmp = {}
-                        CreateLevelProps()
-                        env['CreateLevelProps'] = _tmp
-                    end
                     return env
                 end
-                envo = {}
             ");
-            _getstuff = _lua.GetFunction("GetStuff");
-        }
-        public Dictionary<string, object> LoadFile(string filepath)
-        {
-            var f = _lua.LoadFile(filepath);
-            return ParseTable(_getstuff.Call(f)[0]);
-        }
-        public Dictionary<string, object> LoadString(string data)
-        {
-            var f = _lua.LoadString(data, "");
-            return ParseTable(_getstuff.Call(f)[0]);
-        }
-        public Dictionary<string, object> LoadData(byte[] data)
-        {
-            var f = _lua.LoadString(data, "");
-            return ParseTable(_getstuff.Call(f)[0]);
+            var func = lua.LoadString(data, name);
+            var table = (LuaTable)(lua.GetFunction("GetStuff").Call(func)[0]);
+            var result = new Dictionary<string, object>();
+            foreach (KeyValuePair<object, object> kvp in table)
+            {
+                if (kvp.Value is LuaFunction)
+                    continue;
+                result[(string)kvp.Key] = ParseObject(kvp.Value);
+            }
+            return result;
         }
 
-        private static Dictionary<string, object> ParseTable(object tt)
+        private static Dictionary<string, object> ParseTableDict(LuaTable table)
         {
-            var t = (LuaTable)tt;
             var data = new Dictionary<string, object>();
-            foreach (KeyValuePair<object, object> kvp in t)
+            foreach (KeyValuePair<object, object> kvp in table)
             {
                 if (kvp.Value is LuaFunction)
                     continue;
@@ -91,9 +63,55 @@ namespace LeagueSandbox.ContentSerializer
             return data;
         }
 
-        private static object ParseObject(object o)
+        private static List<object> ParseTableArray(LuaTable table)
         {
-            return o is LuaTable ? ParseTable(o) : o;
+            var data = new object[table.Keys.Count];
+            foreach (KeyValuePair<object, object> kvp in table)
+            {
+                var key = (int)Convert.ChangeType(kvp.Key, typeof(double), CultureInfo.InvariantCulture);
+                data[key - 1] = kvp.Value;
+            }
+            return data.ToList();
+        }
+        private static object ParseObject(object obj)
+        {
+            if(obj is LuaTable table)
+            {
+                if(table.Values.Count == 0)
+                {
+                    return null;
+                }
+                bool isArray = true;
+                foreach(var key in table.Keys)
+                {
+                    if(key is double || key is int || key is float)
+                    {
+                        continue;
+                    }
+                    isArray = false;
+                    break;
+                }
+                if(isArray)
+                {
+                    try
+                    {
+                        return ParseTableArray(table);
+                    }
+                    catch(Exception e)
+                    {
+                        return ParseTableDict(table);
+                    }
+                }
+                else
+                {
+                    return ParseTableDict(table);
+                }
+            }
+            else if(obj is LuaFunction)
+            {
+                return null;
+            }
+            return obj;
         }
     }
 }

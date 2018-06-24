@@ -13,6 +13,7 @@ using System.Xml.Linq;
 using LeagueLib.Files.Manifest;
 using System.Text.RegularExpressions;
 using LeagueSandbox.ContentSerializer.Exporters;
+using System.Threading.Tasks;
 
 namespace LeagueSandbox.ContentSerializer
 {
@@ -668,16 +669,16 @@ namespace LeagueSandbox.ContentSerializer
             {
                 var localization = FontConfigFile.Load(_manager, "en_US");
                 var configList = Configuration.Load(_manager, localization, listFile);
-                foreach (var file in _manager.GetAllFileEntries())
+                Parallel.ForEach(_manager.GetAllFileEntries(), file =>
                 {
-                    foreach(var conf in configList)
+                    foreach (var conf in configList)
                     {
-                        if(conf.Export(file, outpudir))
+                        if (conf.Export(file, outpudir))
                         {
                             break;
                         }
                     }
-                }
+                });
             }
             catch (Exception e)
             {

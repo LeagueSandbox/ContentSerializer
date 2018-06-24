@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace LeagueLib.Files
@@ -10,14 +11,20 @@ namespace LeagueLib.Files
     public partial class FontConfigFile
     {
         private const string FONTCONFIG_LOCATION = "DATA/Menu/fontconfig_{0}.txt";
+        public Dictionary<string, string> Content { get; set; }
 
-        public Dictionary<string, string> Content { get; private set; }
-        private List<string> _header;
-
-        private FontConfigFile()
+        public FontConfigFile(Dictionary<string, string> dict)
         {
-            _header = new List<string>();
-            Content = new Dictionary<string, string>();
+            Content = dict;
+        }
+
+        public string Localize(string source)
+        {
+            if(Content.ContainsKey(source))
+            {
+                return Content[source];
+            }
+            return source;
         }
 
         public static FontConfigFile Load(ArchiveFileManager manager, string locale)

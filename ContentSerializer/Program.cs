@@ -9,6 +9,8 @@ using LeagueLib.Tools;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using LeagueSandbox.ContentSerializer.Exporters;
+using System.Text.RegularExpressions;
+using System.Globalization;
 
 namespace LeagueSandbox.ContentSerializer
 {
@@ -68,73 +70,67 @@ namespace LeagueSandbox.ContentSerializer
             //ExtractItemData(manager, "result-420-420.json");
         }
 
-        public static void SanitizeAndSort(JObject jObj)
+        public static readonly Regex RE_TRUE = new Regex(@"^\s*(true|yes|enable|enabled)\s*$", RegexOptions.IgnoreCase);
+        public static readonly Regex RE_FALSE = new Regex(@"^\s*(false|no|disable|disabled)\s*$", RegexOptions.IgnoreCase);
+        public static readonly Regex RE_NULL = new Regex(@"^\s*(null|nil)\s*$", RegexOptions.IgnoreCase);
+        public static readonly Regex RE_NaN = new Regex(@"^/s*NaN/s*$", RegexOptions.IgnoreCase);
+        public static readonly Regex RE_INT = new Regex(@"^\s*[-+]?\d+\s*$");
+        public static readonly Regex RE_DECIMAL = new Regex(@"^\s*[+-]?(?:\d+\.\d*|\d*\.\d+)(?:[Ee][+-]?\d+)?\s*$");
+        public static readonly Regex RE_VEC = new Regex(@"^(\s*[+-]?(?:\d+\.\d*|\d*\.\d+)(?:[Ee][+-]?\d+)?\s*){2,4}$");
+
+        public static void SanitizeAndSort(JObject jObj, FontConfigFile localization = null)
         {
             var props = jObj.Properties().ToList();
             jObj.RemoveAll();
-
             foreach (var prop in props.OrderBy(p => p.Name))
             {
                 jObj.Add(prop);
                 if (prop.Value is JObject)
                 {
-                    SanitizeAndSort((JObject)prop.Value);
-                    continue;
+                    SanitizeAndSort((JObject)prop.Value, localization);
                 }
-                SanitizePropertyValue(prop);
+                else if (prop.Value.Type == JTokenType.String)
+                {
+                    var propVal = (string)prop.Value;
+                    if (RE_TRUE.IsMatch(propVal))
+                    {
+                        prop.Value = true;
+                    }
+                    else if (RE_FALSE.IsMatch(propVal))
+                    {
+                        prop.Value = false;
+                    }
+                    else if (RE_NULL.IsMatch(propVal))
+                    {
+                        prop.Value = null;
+                    }
+                    else if(RE_NaN.IsMatch(propVal))
+                    {
+                        prop.Value = float.NaN;
+                    }
+                    /*
+                    else if(RE_VEC.IsMatch(propVal))
+                    {
+                        prop.Value = JArray.FromObject(propVal.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)
+                            .Select(value => double.Parse(value, CultureInfo.InvariantCulture)));
+                    }
+                    */
+                    else if (RE_DECIMAL.IsMatch(propVal))
+                    {
+                        prop.Value = double.Parse(propVal, CultureInfo.InvariantCulture);
+                    }
+                    else if (RE_INT.IsMatch(propVal))
+                    {
+                        prop.Value = int.Parse(propVal, CultureInfo.InvariantCulture);
+                    }
+                    else if (localization != null)
+                    {
+                        prop.Value = localization.Localize(propVal);
+                    }
+                }
             }
         }
 
-        public static void SanitizePropertyValue(JProperty property)
-        { 
-            SanitizeBooleanProperty(property);
-
-            // this doesn't really matter if using invariant culture
-            // SanitizeDecimalProperty(property);
-        }
-
-        public static void SanitizeBooleanProperty(JProperty property)
-        {
-            var propVal = ((string)property.Value).ToLowerInvariant();
-            switch(propVal)
-            {
-                case "yes":
-                    property.Value = "true";
-                    return;
-                case "no":
-                    property.Value = "false";
-                    return;
-            }
-        }
-
-        public static void SanitizeDecimalProperty(JProperty property)
-        {
-            var propVal = (string)property.Value;
-            var format = "";
-
-            if (propVal.StartsWith("."))
-            {
-                format = "0.";
-                propVal = propVal.Remove(0, 1);
-            }
-            if (propVal.StartsWith("-."))
-            {
-                format = "-0.";
-                propVal = propVal.Remove(0, 2);
-            }
-            if(format == "")
-            {
-                return;
-            }
-
-            try
-            {
-                var tempVal = Convert.ToDouble(propVal);
-                property.Value = string.Format("{0}{1}", format, propVal);
-                return;
-            }
-            catch { }
-        }
 
         static void ReformatResult()
         {

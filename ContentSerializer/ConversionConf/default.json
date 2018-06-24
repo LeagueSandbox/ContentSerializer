@@ -17,26 +17,10 @@
 	},
 
 	{
-		"InputPattern":"^DATA/Characters/([^/]+)/(?:Scripts/){0,1}CharScript\\1\\.preload\\Z",
-		"OutputPattern":"Characters/$1/$1.preload.json",
-		"ExporterType": "PreloadExporter"
-	},
-	{
-		"InputPattern":"^DATA/(Items|Talents|Spells|Shared/Spells|Characters/[^/]+/Spells)/([^/]+)\\.preload\\Z",
-		"OutputPattern":"$1/$2/$2.preload.json",
-		"ExporterType": "PreloadExporter"
-	},
-
-	{
-		"InputPattern":"^LEVELS/([^/]+)/Scripts/CreateLevelProps\\.luaobj\\Z",
-		"OutputPattern":"Maps/$1/Config/CreateLevelProps.lua.json",
+		"InputPattern": "^DATA/(Items|Talents|Spells|Shared/Spells|Characters/[^/]+/Spells)/([^/]+)\\.luaobj\\Z",
+		"OutputPattern": "$1/$2/$2.lua.json",
 		"ExporterType": "LuaobjExporter"
 	},
-  {
-    "InputPattern": "^DATA/(Items|Talents|Spells|Shared/Spells|Characters/[^/]+/Spells)/([^/]+)\\.luaobj\\Z",
-    "OutputPattern": "$1/$2/$2.lua.json",
-    "ExporterType": "LuaobjExporter"
-  },	
 
 	{
 		"InputPattern":"^DATA/Characters/([^/]+)/\\1\\.inibin\\Z",

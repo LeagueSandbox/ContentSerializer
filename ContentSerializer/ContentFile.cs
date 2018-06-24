@@ -3,6 +3,7 @@ using LeagueLib.Files;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 
@@ -43,12 +44,28 @@ namespace LeagueSandbox.ContentSerializer
             set { MetaData["Id"] = value; }
         }
 
-        public string Serialize()
+        public string GetValue(string section, string name, FontConfigFile localization = null)
+        {
+            if(Values.ContainsKey(section))
+            {
+                var values = Values[section];
+                if(values.ContainsKey(name))
+                {
+                    var value = string.Format(CultureInfo.InvariantCulture, "{0}", values[name]);
+                    if (localization != null)
+                        return localization.Localize(value);
+                    return value;
+                }
+            }
+            return null;
+        }
+
+        public string Serialize(FontConfigFile localization = null)
         {
             var metaData = new JProperty("MetaData", JObject.FromObject(MetaData));
             var values = new JProperty("Values", JObject.FromObject(Values));
             var data = new JObject(metaData, values);
-            Program.SanitizeAndSort(data);
+            Program.SanitizeAndSort(data, localization);
             var result = new StringWriter();
             var jsonWriter = new JsonTextWriter(result);
             var serializer = new JsonSerializer();
@@ -84,6 +101,11 @@ namespace LeagueSandbox.ContentSerializer
             result.ResourcePath = filePath;
             result.ContentFormatVersion = 4;
             return result;
+        }
+
+        public static ContentFile FromInibin(Inibin source, ConversionMap map)
+        {
+            return FromInibin(source, new InibinConverter(map));
         }
 
         public static ContentFile FromInibin(Inibin source, InibinConverter converter)
