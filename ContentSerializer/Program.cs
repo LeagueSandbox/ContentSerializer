@@ -86,9 +86,11 @@ namespace LeagueSandbox.ContentSerializer
         }
 
         public static void SanitizePropertyValue(JProperty property)
-        {
+        { 
             SanitizeBooleanProperty(property);
-            SanitizeDecimalProperty(property);
+
+            // this doesn't really matter if using invariant culture
+            // SanitizeDecimalProperty(property);
         }
 
         public static void SanitizeBooleanProperty(JProperty property)

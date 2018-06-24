@@ -1,70 +1,83 @@
-﻿using LeagueLib.Files.Manifest;
-using LeagueLib.Tools;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using LeagueLib.Files;
+using LeagueLib.Files.Manifest;
+using LeagueLib.Tools;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace LeagueSandbox.ContentSerializer.Exporters
 {
-    public class InibinExporter
+    public class InibinExporterConf
     {
-        public string OutputDirectory { get; }
-        private ArchiveFileManager _manager;
-        private ReleaseManifestFileEntry[] _files;
-
-        public InibinExporter(ArchiveFileManager manager, string outputDirectory = "ExportOutput")
+        public string ConversionMap { get; set; }
+        public List<string[]> NameFields { get; set; } = new List<string[]>
         {
-            _manager = manager;
-            _files = manager.GetAllFileEntries();
-            OutputDirectory = outputDirectory;
-        }
+            new string[]{"Data", "DisplayName" }
+        };
+    }
 
-        public void Export(params ContentConfiguration[] list)
+    public class InibinExporter : IExporter
+    {
+        public ArchiveFileManager Manager { get; set; }
+        public InibinConverter Converter { get; set; }
+        public FontConfigFile Localization { get; set; }
+        public List<string[]> NameFields { get; set; } = new List<string[]>
         {
-            foreach(var configuration in list)
+            new string[] { "Data", "DisplayName" }
+        };
+
+        public void Load(ArchiveFileManager manager, FontConfigFile localization, InibinExporterConf conf, string confPath)
+        {
+            if(string.IsNullOrEmpty(conf.ConversionMap))
             {
-                Export(configuration);
+                throw new KeyNotFoundException("Missing or empty ConversionMap path ");
             }
+            Manager = manager;
+            Localization = localization;
+            NameFields = conf.NameFields;
+            Converter = new InibinConverter(ConversionMap.Load($"{confPath}/{conf.ConversionMap}"));
         }
 
-        public void Export(ContentConfiguration configuration)
+        public void Load(ArchiveFileManager manager, FontConfigFile localization, JObject conf, string confPath)
         {
-            // Has to be done this way so we can use the patterns for priority in case of conflicts
-            foreach (var pattern in configuration.ResourcePatterns)
-            {
-                ExportMatches(configuration, pattern);
-            }
+            Load(manager, localization, conf.ToObject<InibinExporterConf>(), confPath);
         }
 
-        private void ExportMatches(ContentConfiguration configuration, Regex pattern)
-        {    
-            foreach(var file in _files)
-            {
-                if (!pattern.IsMatch(file.FullName)) continue;
-                ExportFile(configuration, file);
-            }
-        }
-
-        private void ExportFile(ContentConfiguration configuration, ReleaseManifestFileEntry file)
+        public string FindName(ContentFile content)
         {
-            // Load and convert
-            var inibin = _manager.ReadInibin(file.FullName);
-            var item = ContentFile.FromInibin(inibin, configuration);
+            var name = content.Id.ToString();
 
-            // Find save path
-            var savePath = string.Format(
-                "{0}/{1}",
-                OutputDirectory,
-                configuration.GetTargetName(file.FullName)
-            );
+            foreach (var field in NameFields)
+            {
+                if (!content.Values.ContainsKey(field[0]))
+                    continue;
+                if (!content.Values[field[0]].ContainsKey(field[1]))
+                    continue;
+                var nameKey = content.Values[field[0]][field[1]].ToString();
+                if (string.IsNullOrEmpty(nameKey))
+                    continue;
+                if (!Localization.Content.ContainsKey(nameKey))
+                    continue;
+                return Localization.Content[nameKey];
+            }
+            return name;
+        }
 
-            // Create save directory if one doesn't exist
-            var saveDirectory = Path.GetDirectoryName(savePath);
-            if (!Directory.Exists(saveDirectory)) Directory.CreateDirectory(saveDirectory);
-
-            // Save the converted data
-            File.WriteAllText(savePath, item.Serialize());
+        public void Export(ReleaseManifestFileEntry file, string output)
+        {
+            var inibin = Manager.ReadInibin(file.FullName);
+            var item = ContentFile.FromInibin(inibin, Converter);
+            item.Name = FindName(item);
+            var dir = Path.GetDirectoryName(output);
+            if (!Directory.Exists(dir))
+                Directory.CreateDirectory(dir);
+            File.WriteAllBytes(output, Encoding.UTF8.GetBytes(item.Serialize().ToString()));
         }
     }
 }

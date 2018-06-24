@@ -34,8 +34,17 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="INIFileParser, Version=2.5.2.0, Culture=neutral, PublicKeyToken=79af7b307b65cf3c, processorArchitecture=MSIL">
+      <HintPath>..\packages\ini-parser.2.5.2\lib\net20\INIFileParser.dll</HintPath>
+    </Reference>
+    <Reference Include="KopiLua, Version=1.3.5449.31722, Culture=neutral, PublicKeyToken=e25f4af1e4f7b31c, processorArchitecture=MSIL">
+      <HintPath>..\packages\NLua_Safe.1.3.2.1\lib\net45\KopiLua.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="NLua, Version=1.3.2.0, Culture=neutral, PublicKeyToken=8df2ab518030ea95, processorArchitecture=MSIL">
+      <HintPath>..\packages\NLua_Safe.1.3.2.1\lib\net45\NLua.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -47,13 +56,20 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Configuration.cs" />
     <Compile Include="ConflictResolver.cs" />
-    <Compile Include="ContentConfiguration.cs" />
     <Compile Include="ContentFile.cs" />
     <Compile Include="ConversionMap.cs" />
+    <Compile Include="Exporters\CopyExporter.cs" />
+    <Compile Include="Exporters\IExporter.cs" />
     <Compile Include="Exporters\InibinExporter.cs" />
+    <Compile Include="Exporters\IniExporter.cs" />
+    <Compile Include="Exporters\LuaobjExporter.cs" />
+    <Compile Include="Exporters\PreloadExporter.cs" />
+    <Compile Include="Exporters\RoomExporter.cs" />
     <Compile Include="HashForce\HashForcer.cs" />
     <Compile Include="LaunchArguments.cs" />
+    <Compile Include="LuaDumper.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="ProgramInterface.cs" />
     <Compile Include="ProgramInterfaceCLI.cs" />
@@ -62,10 +78,34 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="ConversionConf\default.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ConversionMaps\CharacterConversionMap.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ConversionMaps\GlobalsConversionMap.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="ConversionMaps\ItemConversionMap.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="ConversionMaps\ItemGroupConversionMap.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ConversionMaps\ItemMetaDataConversionMap.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ConversionMaps\LevelsConversionMap.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ConversionMaps\SkinConversionMap.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="ConversionMaps\SpellConversionMap.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="ConversionMaps\TalentConversionMap.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="packages.config" />

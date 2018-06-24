@@ -200,10 +200,6 @@ namespace LeagueSandbox.ContentSerializer
                         return prog.ContentDataMake(cmd[1]);
                     if (len == 3)
                         return prog.ContentDataMake(cmd[1], cmd[2]);
-                    if (len == 4)
-                        return prog.ContentDataMake(cmd[1], cmd[2], cmd[3]);
-                    if (len == 5)
-                        return prog.ContentDataMake(cmd[1], cmd[2], cmd[3], cmd[4]);
                     return -1;
                 case "help":
                     Console.WriteLine("Command/Altcommand [argument] [*optional] - descirpiton: ");
@@ -247,7 +243,7 @@ namespace LeagueSandbox.ContentSerializer
                     Console.WriteLine("findfiles [section] [name] - Finds files");
                     Console.WriteLine("findtype [type] - Finds files and hashes with type");
                     Console.WriteLine("ffindfiles [type] - Same as above but only look in matching draft hashes");
-                    Console.WriteLine("contentdata [lisfile] [*outdir] [*mapdir] [*patterndir] - Converts ConversionMap/[Item|Spell]ConversionMap.json to Content/*");
+                    Console.WriteLine("contentdata [lisfile] [*outdir] - Runs exporters");
                     Console.WriteLine("---------------------------------------------------------");
                     break;
                 default:

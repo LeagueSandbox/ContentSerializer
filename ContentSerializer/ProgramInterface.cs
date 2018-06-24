@@ -662,14 +662,22 @@ namespace LeagueSandbox.ContentSerializer
             return 0;
         }
 
-        public int ContentDataMake(string listFile,string outpudir="ExportOutput",
-            string mapDir="ConversionMaps", string patternDir="ContentPatterns")
+        public int ContentDataMake(string listFile, string outpudir="ExportOutput")
         {
             try
             {
                 var localization = FontConfigFile.Load(_manager, "en_US");
-                var exporter = new InibinExporter(_manager, outpudir);
-                exporter.Export(ContentConfiguration.LoadList(localization, mapDir, patternDir, listFile));
+                var configList = Configuration.Load(_manager, localization, listFile);
+                foreach (var file in _manager.GetAllFileEntries())
+                {
+                    foreach(var conf in configList)
+                    {
+                        if(conf.Export(file, outpudir))
+                        {
+                            break;
+                        }
+                    }
+                }
             }
             catch (Exception e)
             {

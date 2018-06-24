@@ -1,8 +1,10 @@
-﻿using LeagueLib.Files;
+﻿using IniParser.Model;
+using LeagueLib.Files;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace LeagueSandbox.ContentSerializer
 {
@@ -11,7 +13,7 @@ namespace LeagueSandbox.ContentSerializer
         public Dictionary<string, Dictionary<string, object>> Values { get; set; }
         public Dictionary<string, object> MetaData { get; set; }
 
-        protected ContentFile()
+        public ContentFile()
         {
             Values = new Dictionary<string, Dictionary<string, object>>();
             MetaData = new Dictionary<string, object>();
@@ -20,25 +22,25 @@ namespace LeagueSandbox.ContentSerializer
         public int ContentFormatVersion
         {
             get { return (int)MetaData["ContentFormatVersion"]; }
-            protected set { MetaData["ContentFormatVersion"] = value; }
+            set { MetaData["ContentFormatVersion"] = value; }
         }
 
         public virtual string Name
         {
             get { return (string)MetaData["Name"]; }
-            protected set { MetaData["Name"] = value; }
+            set { MetaData["Name"] = value; }
         }
 
         public virtual string ResourcePath
         {
             get { return (string)MetaData["ResourcePath"]; }
-            protected set { MetaData["ResourcePath"] = value; }
+            set { MetaData["ResourcePath"] = value; }
         }
 
         public virtual object Id
         {
             get { return MetaData["Id"]; }
-            protected set { MetaData["Id"] = value; }
+            set { MetaData["Id"] = value; }
         }
 
         public string Serialize()
@@ -52,17 +54,34 @@ namespace LeagueSandbox.ContentSerializer
             var serializer = new JsonSerializer();
             jsonWriter.Formatting = Formatting.Indented;
             jsonWriter.Indentation = 4;
+            
             serializer.Serialize(jsonWriter, data);
             return result.ToString();
         }
 
-        public static ContentFile FromInibin(Inibin source, ContentConfiguration configuration)
+        public static ContentFile FromIniData(IniData source, string filePath)
         {
             var result = new ContentFile();
-            result.Values = configuration.Converter.Convert(source);
-            result.Id = configuration.FindId(source.FilePath);
-            result.Name = configuration.FindName(result);
-            result.ResourcePath = source.FilePath;
+            foreach(var section in source.Sections)
+            {
+                var dict = new Dictionary<string, object>();
+                foreach(var name in section.Keys)
+                {
+                    dict[name.KeyName] = name.Value;
+                }
+                result.Values[section.SectionName] = dict;
+            }
+            {
+                var dict = new Dictionary<string, object>();
+                foreach (var global in source.Global)
+                {
+                    dict[global.KeyName] = global.Value;
+                }
+                result.Values[""] = dict;
+            }
+            result.Id = filePath.Split('/').Last().Split('.').First();
+            result.Name = result.Id.ToString();
+            result.ResourcePath = filePath;
             result.ContentFormatVersion = 4;
             return result;
         }
@@ -70,13 +89,12 @@ namespace LeagueSandbox.ContentSerializer
         public static ContentFile FromInibin(Inibin source, InibinConverter converter)
         {
             var result = new ContentFile();
-            result.Values = result.Values = converter.Convert(source);
-            result.Id = 0;
-            result.Name = "";
+            result.Values = converter.Convert(source);
+            result.Id = source.FilePath.Split('/').Last().Split('.').First();
+            result.Name = result.Id.ToString();
             result.ResourcePath = source.FilePath;
             result.ContentFormatVersion = 4;
             return result;
         }
-
     }
 }

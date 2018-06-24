@@ -2,96 +2,102 @@
 	{
 		"InputPattern":"^LEVELS/([^/]+)/AIPath\\.(aimesh|aimesh_ngrid)\\Z",
 		"OutputPattern":"Maps/$1/AIPath.$2",
-		"ExporterType": "CopyExporter"
+		"ExporterType": "CopyExporter",
 	},
 
 	{
 		"InputPattern":"^LEVELS/([^/]+)/Constants.var\\Z",
 		"OutputPattern":"Maps/$1/Config/Constants.json",
-		"ExporterType": "IniExporter"
+		"ExporterType": "IniExporter",
 	},
 	{
 		"InputPattern":"^LEVELS/([^/]+)/Scene/CFG/ObjectCFG.cfg\\Z",
 		"OutputPattern":"Maps/$1/Config/ObjectCFG.json",
-		"ExporterType": "IniExporter"
+		"ExporterType": "IniExporter",
 	},
 
 	{
 		"InputPattern":"^DATA/Characters/([^/]+)/(?:Scripts/){0,1}CharScript\\1\\.preload\\Z",
 		"OutputPattern":"Characters/$1/$1.preload.json",
-		"ExporterType": "PreloadExporter"
+		"ExporterType": "PreloadExporter",
 	},
 	{
 		"InputPattern":"^DATA/(Items|Talents|Spells|Shared/Spells|Characters/[^/]+/Spells)/([^/]+)\\.preload\\Z",
 		"OutputPattern":"$1/$2/$2.preload.json",
-		"ExporterType": "PreloadExporter"
+		"ExporterType": "PreloadExporter",
 	},
 
 	{
 		"InputPattern":"^LEVELS/([^/]+)/Scripts/CreateLevelProps\\.luaobj\\Z",
 		"OutputPattern":"Maps/$1/Config/CreateLevelProps.lua.json",
-		"ExporterType": "LuaobjExporter"
+		"ExporterType": "LuaobjExporter",
 	},
-  {
-    "InputPattern": "^DATA/(Items|Talents|Spells|Shared/Spells|Characters/[^/]+/Spells)/([^/]+)\\.luaobj\\Z",
-    "OutputPattern": "$1/$2/$2.lua.json",
-    "ExporterType": "LuaobjExporter"
-  },	
+	{
+		"InputPattern":"^DATA/(Items|Talents|Spells|Shared/Spells|Characters/[^/]+/Spells)/([^/]+)\\.luaobj\\Z",
+		"OutputPattern":"$1/$2/$2.lua.json",
+		"ExporterType": "LuaobjExporter",
+	},	
 
 	{
 		"InputPattern":"^DATA/Characters/([^/]+)/\\1\\.inibin\\Z",
 		"OutputPattern":"Characters/$1/$1.json",
 		"ExporterType": "InibinExporter",
 		"ExporterConf": {
-			"ConversionMap":"../ConversionMaps/CharacterConversionMap.json"
-		}
+			"ConversionMap":"../ConversionMaps/CharacterConversionMap.json",
+		},
 	},
 	{
 		"InputPattern":"^DATA/Characters/([^/]+)/Skins/([^/]+)/\\2\\.inibin\\Z",
 		"OutputPattern":"Characters/$1/Skins/$2/$1.json",
 		"ExporterType": "InibinExporter",
 		"ExporterConf": {
-			"ConversionMap":"../ConversionMaps/SkinConversionMap.json"
-		}
+			"ConversionMap":"../ConversionMaps/SkinConversionMap.json",
+		},
 	},
 	{
 		"InputPattern":"^LEVELS/([^/]+)/(DeathTimes|ExpCurve|StatsProgression)\\.inibin\\Z",
 		"OutputPattern":"Maps/$1/Config/$2.json",
 		"ExporterType": "InibinExporter",
 		"ExporterConf": {
-			"ConversionMap":"../ConversionMaps/LevelsConversionMap.json"
-		}
+			"ConversionMap":"../ConversionMaps/LevelsConversionMap.json",
+		},
 	},
 	{
 		"InputPattern":"^DATA/Globals/(HealthGain|Critical|Bounty)\\.inibin\\Z",
 		"OutputPattern":"Globals/$1.json",
 		"ExporterType": "InibinExporter",
 		"ExporterConf": {
-			"ConversionMap":"../ConversionMaps/GlobalsConversionMap.json"
-		}
+			"ConversionMap":"../ConversionMaps/GlobalsConversionMap.json",
+		},
 	},
 	{
 		"InputPattern":"^DATA/Items/([^/]+)\\.inibin\\Z",
 		"OutputPattern":"Items/$1/$1.json",
 		"ExporterType": "InibinExporter",
 		"ExporterConf": {
-			"ConversionMap":"../ConversionMaps/ItemConversionMap.json"
-		}
+			"ConversionMap":"../ConversionMaps/ItemConversionMap.json",
+		},
 	},
 	{
 		"InputPattern":"^DATA/Talents/([^/]+)\\.inibin\\Z",
 		"OutputPattern":"Talents/$1/$1.json",
 		"ExporterType": "InibinExporter",
 		"ExporterConf": {
-			"ConversionMap":"../ConversionMaps/TalentConversionMap.json"
-		}
+			"ConversionMap":"../ConversionMaps/TalentConversionMap.json",
+		},
 	},
 	{
 		"InputPattern":"^DATA/(.*/){0,1}Spells/([^/]+)\\.inibin\\Z",
 		"OutputPattern":"$1/Spells/$2/$2.json",
 		"ExporterType": "InibinExporter",
 		"ExporterConf": {
-			"ConversionMap":"../ConversionMaps/SpellConversionMap.json"
-		}
-	}
+			"ConversionMap":"../ConversionMaps/SpellConversionMap.json",
+		},
+	},
+	{
+		"InputPattern":"^LEVELS/([^/]+)/Scripts/CreateLevelProps\\.luaobj\\Z",
+		"OutputPattern":"Maps/$1/Config/CreateLevelProps.lua.json",
+		"ExporterType": "LuaobjExporter",
+	},
+
 ]

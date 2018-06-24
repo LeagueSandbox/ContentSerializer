@@ -1,5 +1,6 @@
 [
 	"^LEVELS/[^/]+/DeathTimes\\.inibin\\Z",
 	"^LEVELS/[^/]+/ExpCurve\\.inibin\\Z",
-	"^LEVELS/[^/]+/StatsProgression\\.inibin\\Z"
+	"^LEVELS/[^/]+/StatsProgression\\.inibin\\Z",
+	"^LEVELS/[^/]+/NeutralTimers\\.inibin\\Z"
 ]

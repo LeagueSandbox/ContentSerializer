@@ -42,6 +42,7 @@ x64/
 .builds
 
 # Visual C++ cache files
+*.vs/
 ipch/
 *.aps
 *.ncb
