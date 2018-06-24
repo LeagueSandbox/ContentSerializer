@@ -18,7 +18,10 @@ namespace LeagueSandbox.ContentSerializer.Exporters
         public string ConversionMap { get; set; }
         public List<string[]> NameFields { get; set; } = new List<string[]>
         {
-            new string[]{"Data", "DisplayName" }
+            new string[] { "Data", "DisplayName" },
+            new string[] { "SpellData", "DisplayName" },
+            new string[] { "Data", "Name" },
+            new string[] { "SpellData", "Name" },
         };
     }
 
@@ -29,7 +32,10 @@ namespace LeagueSandbox.ContentSerializer.Exporters
         public FontConfigFile Localization { get; set; }
         public List<string[]> NameFields { get; set; } = new List<string[]>
         {
-            new string[] { "Data", "DisplayName" }
+            new string[] { "Data", "DisplayName" },
+            new string[] { "SpellData", "DisplayName" },
+            new string[] { "Data", "Name" },
+            new string[] { "SpellData", "Name" },
         };
 
         public void Load(ArchiveFileManager manager, FontConfigFile localization, InibinExporterConf conf, string confPath)
