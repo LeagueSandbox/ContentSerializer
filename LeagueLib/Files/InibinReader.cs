@@ -76,11 +76,11 @@ namespace LeagueLib.Files
                     values[i] = new InibinValue(type, (float)(_reader.ReadByte() * 0.1f));
                 }
             }
-            else if (type == 3) // Unsigned shorts
+            else if (type == 3) // shorts
             {
                 for (int i = 0; i < count; i++)
                 {
-                    values[i] = new InibinValue(type, _reader.ReadUInt16());
+                    values[i] = new InibinValue(type, _reader.ReadInt16());
                 }
             }
             else if (type == 4) // Bytes
@@ -161,7 +161,7 @@ namespace LeagueLib.Files
                     values[i] = new InibinValue(type, string.Format("{0} {1} {2} {3}", b, g, r, a));
                 }
             }
-            else if (type == 12) // Unsigned short - string dictionary offsets
+            else if (type == 12) // short - string dictionary offsets
             {
                 long stringListOffset = _reader.BaseStream.Length - _stringTableLength;
 
@@ -169,6 +169,13 @@ namespace LeagueLib.Files
                 {
                     int offset = _reader.ReadInt16();
                     values[i] = new InibinValue(type, DeserializeString(stringListOffset + offset));
+                }
+            }
+            else if (type == 13) // long long
+            {
+                for (int i = 0; i < count; i++)
+                {
+                    values[i] = new InibinValue(type, _reader.ReadInt64());
                 }
             }
             else
