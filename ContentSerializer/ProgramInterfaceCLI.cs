@@ -246,7 +246,7 @@ namespace LeagueSandbox.ContentSerializer
                     Console.WriteLine("unduplicatedraft - Leaves only non duplciate strings");
                     Console.WriteLine("findfiles [section] [name] - Finds files");
                     Console.WriteLine("findtype [type] - Finds files and hashes with type");
-                    Console.WriteLine("ffindfiles [type] - Same as above but only look in matching draft hashes");
+                    Console.WriteLine("ffindtype [type] - Same as above but only look in matching draft hashes");
                     Console.WriteLine("contentdata [lisfile] [*outdir] [*mapdir] [*patterndir] - Converts ConversionMap/[Item|Spell]ConversionMap.json to Content/*");
                     Console.WriteLine("---------------------------------------------------------");
                     break;

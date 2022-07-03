@@ -80,7 +80,7 @@ namespace LeagueLib.Files
             {
                 for (int i = 0; i < count; i++)
                 {
-                    values[i] = new InibinValue(type, _reader.ReadUInt16());
+                    values[i] = new InibinValue(type, _reader.ReadInt16());
                 }
             }
             else if (type == 4) // Bytes
